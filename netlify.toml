@@ -1,0 +1,4 @@
+[build]
+  functions = "functions"
+[dev]
+  framework = "vue"
