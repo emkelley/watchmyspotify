@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vue-cli-service serve",
+    "dev": "netlify dev -p 8885",
+    "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
@@ -11,6 +12,7 @@
     "axios": "^0.21.1",
     "buefy": "^0.9.8",
     "core-js": "^3.6.5",
+    "googleapis": "^81.0.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0"
   },

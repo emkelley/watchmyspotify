@@ -1,6 +1,7 @@
 const { default: axios } = require('axios');
 const ID = process.env.SPOTIFY_CLIENT_ID;
 const SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const REFRESH = process.env.SPOTIFY_REFRESH_TOKEN;
 const authBuffer = Buffer.from(`${ID}:${SECRET}`).toString('base64');
 
 exports.handler = (event, context, callback) => {
@@ -12,7 +13,7 @@ exports.handler = (event, context, callback) => {
       headers: { Authorization: `Basic ${authBuffer}` },
       params: {
         grant_type: 'refresh_token',
-        refresh_token: process.env.SPOTIFY_AUTH_REFRESH_TOKEN,
+        refresh_token: REFRESH,
       },
     }).then(({ data: { access_token } }) =>
       axios({
@@ -20,10 +21,9 @@ exports.handler = (event, context, callback) => {
         url: `https://api.spotify.com/v1/playlists/${playlist_id}`,
         headers: { Authorization: 'Bearer ' + access_token },
       }).then(({ data }) => {
-        console.log(data);
         return callback(null, {
           statusCode: 200,
-          body: JSON.stringify(data),
+          body: JSON.stringify(data.tracks),
         });
       })
     );
