@@ -36,12 +36,13 @@
             </div>
             <hr />
             <h2 class="subtitle">Generated Video Playlist</h2>
-            Found {{ ytResultsURLs.length }} videos <br />
+            <p>Found {{ ytResultsURLs.length }} videos</p>
+            <br />
             <a
+              class="button"
               :href="generatedPlaylistURL"
               target="_blank"
               rel="noopener"
-              class="button"
             >
               Watch Your Playlist
             </a>
@@ -58,10 +59,8 @@ export default {
   name: 'Home',
   data() {
     return {
-      playlistURL:
-        'https://open.spotify.com/playlist/2e5zLODjQB04wovyMU6ZQa?si=6916c88669ce4069',
+      playlistURL: 'https://open.spotify.com/playlist/2e5zLODjQB04wovyMU6ZQa',
       playlistData: undefined,
-      foundVideos: 0,
       ytResultsURLs: [],
     };
   },
@@ -71,7 +70,6 @@ export default {
     },
   },
   methods: {
-    // get the spotify playlist data from this.playlistURL
     async getPlaylistData() {
       if (!this.playlistURL) return;
       const playlistID = this.playlistURL.split('/')[4];
@@ -81,7 +79,7 @@ export default {
         },
       });
       this.playlistData = data.data.items;
-      data.data.items.forEach((track) => {
+      this.playlistData.forEach((track) => {
         this.searchYouTube(
           `${track.track.name} - ${track.track.album.artists[0].name}`
         );
@@ -93,10 +91,7 @@ export default {
           query: query,
         },
       });
-      if (data) {
-        this.foundVideos++;
-        this.ytResultsURLs.push(data.data[0].id.videoId);
-      }
+      if (data) this.ytResultsURLs.push(data.data[0].id.videoId);
     },
   },
 };
