@@ -8,7 +8,7 @@ exports.handler = (event, context, callback) => {
         type: 'video',
         maxResults: 5,
         key: process.env.YOUTUBE_API_KEY,
-        q: event.queryStringParameters.query,
+        q: `${event.queryStringParameters.query} official`,
       })
       .then((res) => {
         return callback(null, {

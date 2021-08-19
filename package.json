@@ -12,6 +12,7 @@
     "axios": "^0.21.1",
     "buefy": "^0.9.8",
     "core-js": "^3.6.5",
+    "firebase": "^8.10.0",
     "googleapis": "^81.0.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0"
