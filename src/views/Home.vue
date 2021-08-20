@@ -77,7 +77,7 @@ export default {
   data() {
     return {
       playlistURL:
-        'https://open.spotify.com/playlist/04KhhRFdIcxuYpBixlQPYN?si=f6286f8c552b4824',
+        'https://open.spotify.com/playlist/1FiZB3ccVxFAUxaL7jMV1i?si=9ec16b86badc4ac3',
       playlistData: undefined,
       ytResultsURLs: [],
       userProvidedAPIKey: undefined,
