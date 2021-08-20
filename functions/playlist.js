@@ -20,12 +20,12 @@ exports.handler = (event, context, callback) => {
         method: 'GET',
         url: `https://api.spotify.com/v1/playlists/${playlist_id}`,
         headers: { Authorization: 'Bearer ' + access_token },
-      }).then(({ data }) => {
-        return callback(null, {
+      }).then(({ data }) =>
+        callback(null, {
           statusCode: 200,
           body: JSON.stringify(data.tracks),
-        });
-      })
+        })
+      )
     );
   }
 };
