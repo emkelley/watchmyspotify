@@ -16,10 +16,22 @@
             label="Spotify Playlist URL"
             message="Playlist must be public"
           >
-            <b-input size="is-medium" v-model="playlistURL" />
+            <b-input size="" v-model="playlistURL" />
+          </b-field>
+          <br />
+
+          <b-field
+            label="YouTube Data API Key"
+            message="By default the app will use my API key but that usage will get used up pretty quickly. If you are getting YouTube API errors, enter your own API key in this field."
+          >
+            <b-input size="is-small" v-model="userProvidedAPIKey" />
           </b-field>
           <hr />
-          <b-button @click="start" label="🪄 Convert Playlist to Music Videos" />
+          <b-button
+            type="is-primary"
+            @click="start"
+            label="🪄 Convert Playlist to Music Videos"
+          />
         </div>
         <div class="column is-8">
           <div v-if="playlistData">
@@ -38,10 +50,12 @@
             </div>
             <hr />
             <h2 class="subtitle">Generated Video Playlist</h2>
-            <p>Found {{ ytResultsURLs.length }} videos</p>
+            <p>
+              Found {{ ytResultsURLs.length }}/{{ playlistData.length }} videos
+            </p>
             <br />
             <a
-              class="button"
+              class="button is-primary is-medium is-outlined"
               :href="generatedPlaylistURL"
               target="_blank"
               rel="noopener"
@@ -63,9 +77,10 @@ export default {
   data() {
     return {
       playlistURL:
-        'https://open.spotify.com/playlist/5kM1GFzJ8bqjbdaBE3DMlF?si=199919f3498d4158',
+        'https://open.spotify.com/playlist/04KhhRFdIcxuYpBixlQPYN?si=f6286f8c552b4824',
       playlistData: undefined,
       ytResultsURLs: [],
+      userProvidedAPIKey: undefined,
     };
   },
   computed: {
@@ -104,19 +119,19 @@ export default {
     },
     async searchYouTube(query, trackURL) {
       console.log('yt query ran');
-      const data = await axios.get('/.netlify/functions/yt', {
-        params: {
-          query: query,
-        },
-      });
-      if (data) {
+      try {
+        const data = await axios.get('/.netlify/functions/yt', {
+          params: {
+            query: query,
+            API_KEY: this.userProvidedAPIKey,
+          },
+        });
         const ytID = data.data[0].id.videoId;
         this.ytResultsURLs.push(ytID);
         this.cacheResults(ytID, trackURL);
-      } else
-        this.$buefy.toast.open(
-          `Couldn't get YouTube results. The API key probably hit it's limit`
-        );
+      } catch (error) {
+        this.throwError();
+      }
     },
     async cacheResults(ytID, spotifyURL) {
       console.log(`caching ${(ytID, spotifyURL)}`);
@@ -136,6 +151,15 @@ export default {
           return results[0].ytID;
         });
     },
+    throwError() {
+      this.$buefy.toast.open({
+        queue: false,
+        duration: 3000,
+        message: `Couldn't get YouTube results. The API key probably hit it's limit`,
+        position: 'is-bottom-right',
+        type: 'is-danger',
+      });
+    },
   },
 };
 </script>
@@ -145,5 +169,8 @@ export default {
   padding: 0rem;
   overflow: hidden;
   aspect-ratio: 1 / 1;
+}
+.hero {
+  border-top: 10px solid #00d261;
 }
 </style>
