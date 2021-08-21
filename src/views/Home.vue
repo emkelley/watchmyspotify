@@ -15,7 +15,8 @@
           <b-field label="Spotify Playlist URL">
             <b-input size="" v-model="playlistURL" />
           </b-field>
-          <p><small>Playlist must be public</small></p>
+          <small>Playlist must be public - demo playlist below:</small>
+          <br />
 
           <code>
             https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1?si=7d1352b54dcd4d13
