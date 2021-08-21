@@ -27,9 +27,13 @@
 
           <b-field
             label="YouTube Data API Key"
-            message="By default the app will use my API key but that usage will get used up pretty quickly. If you are getting YouTube API errors, enter your own API key in this field."
+            message="By default the app will use my API key but that usage will get used up pretty quickly. If you are getting errors, enter your own YouTube Data API key in this field. Songs and their matching YouTube videos are cached to help reduce the reliance on the YouTube API but that takes time to build up."
           >
-            <b-input size="is-small" v-model="userProvidedAPIKey" />
+            <b-input
+              size="is-small"
+              placeholder="Enter API Key here"
+              v-model="userProvidedAPIKey"
+            />
           </b-field>
           <hr />
           <b-button
