@@ -12,12 +12,17 @@
       <div class="columns is-multiline is-centered">
         <div class="column is-5">
           <br />
-          <b-field
-            label="Spotify Playlist URL"
-            message="Playlist must be public"
-          >
+          <b-field label="Spotify Playlist URL">
             <b-input size="" v-model="playlistURL" />
           </b-field>
+          <small>Playlist must be public</small>
+          <small>
+            Ex:
+            <code>
+              https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1?si=7d1352b54dcd4d13
+            </code>
+          </small>
+          <br />
           <br />
 
           <b-field
@@ -29,6 +34,7 @@
           <hr />
           <b-button
             type="is-primary"
+            expanded
             @click="start"
             label="🪄 Convert Playlist to Music Videos"
           />
@@ -39,11 +45,7 @@
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
-                  <h2 class="subtitle">Generated Video Playlist</h2>
-                  <p style="margin-left: 1rem">
-                    Found {{ ytResultsURLs.length }} / {{ playlistData.length }}
-                    videos
-                  </p>
+                  <h1 class="title is-4">Generated Video Playlist</h1>
                 </div>
               </div>
               <div class="level-right">
@@ -70,18 +72,19 @@
             </div>
             <p v-if="finalYTURL">
               <iframe
-                class="playlist-iframe"
+                class="playlist-iframe box"
                 width="100%"
                 :src="createYTembed(finalYTURL.data)"
                 title="YouTube video player"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen
+                autoplay="true"
               ></iframe>
             </p>
 
             <hr />
-            <h2 class="subtitle">Album Covers</h2>
+            <h1 class="title is-4">Album Covers</h1>
             <div class="columns is-multiline">
               <div
                 v-for="track in playlistData"
@@ -254,7 +257,7 @@ export default {
       });
     },
     createYTembed(id) {
-      return `https://www.youtube.com/embed/videoseries?list=${id}`;
+      return `https://www.youtube.com/embed/videoseries?list=${id}&autoplay=1`;
     },
   },
 };
@@ -268,9 +271,13 @@ export default {
 }
 .hero {
   border-top: 10px solid #00d261;
+  border-bottom-right-radius: 1.5rem;
+  border-bottom-left-radius: 1.5rem;
 }
 .playlist-iframe {
   aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 1rem;
 }
 .lds-ellipsis {
   display: inline-block;
