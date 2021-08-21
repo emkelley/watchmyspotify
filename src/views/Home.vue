@@ -15,13 +15,11 @@
           <b-field label="Spotify Playlist URL">
             <b-input size="" v-model="playlistURL" />
           </b-field>
-          <small>Playlist must be public</small>
-          <small>
-            Ex:
-            <code>
-              https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1?si=7d1352b54dcd4d13
-            </code>
-          </small>
+          <p><small>Playlist must be public</small></p>
+
+          <code>
+            https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1?si=7d1352b54dcd4d13
+          </code>
           <br />
           <br />
 
@@ -35,7 +33,7 @@
               v-model="userProvidedAPIKey"
             />
           </b-field>
-          <hr />
+          <br />
           <b-button
             type="is-primary"
             expanded
@@ -261,13 +259,30 @@ export default {
       });
     },
     createYTembed(id) {
-      return `https://www.youtube.com/embed/videoseries?list=${id}&autoplay=1`;
+      return `https://www.youtube-nocookie.com/embed/videoseries?list=${id}&autoplay=1`;
     },
   },
 };
 </script>
 
 <style lang="scss">
+.home {
+  background: rgb(17, 17, 17);
+  color: ghostwhite;
+  min-height: 100vh;
+  .title,
+  .subtitle {
+    color: ghostwhite;
+  }
+  label {
+    color: #00d261;
+  }
+}
+hr {
+  background: #00d261;
+  border-radius: 999px;
+  height: 1px;
+}
 .box {
   padding: 0rem;
   overflow: hidden;
@@ -277,6 +292,7 @@ export default {
   border-top: 10px solid #00d261;
   border-bottom-right-radius: 1.5rem;
   border-bottom-left-radius: 1.5rem;
+  background: black;
 }
 .playlist-iframe {
   aspect-ratio: 16 / 9;
@@ -337,5 +353,10 @@ export default {
   100% {
     transform: translate(24px, 0);
   }
+}
+code {
+  background: black;
+  color: #00d261;
+  font-size: 0.6rem;
 }
 </style>
