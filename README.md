@@ -6,7 +6,7 @@ Built with Vue, Spotify API, YouTube Data API, Netlify Functions and some good '
 
 ![](demo.gif)
 
-### Getting Started
+### Running Locally
 Clone the repo and run `yarn` or `npm install` to install dependencies.
 
 Before running the app, you'll need to [create a Spotify Developer app](https://developer.spotify.com/dashboard/login) and get the Client ID and Client Secret.
