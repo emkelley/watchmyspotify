@@ -3,7 +3,7 @@
 A simple app that converts your public spotify playlists to a YouTube playlist.
 
 Built with Vue, Spotify API, YouTube Data API, Netlify Functions and some good 'ole undocumented YouTube endpoints.
-
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/emkelley/watchmyspotify)
 ![](demo.gif)
 
 ### Running Locally
