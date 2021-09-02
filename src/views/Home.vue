@@ -144,7 +144,7 @@ export default {
   name: 'Home',
   data() {
     return {
-      playlistURL: undefined,
+      playlistURL: 'https://open.spotify.com/playlist/3DrL4y1VUT5KW1a4SSXPBh',
       playlistData: undefined,
       ytResultsURLs: [],
       userProvidedAPIKey: undefined,
