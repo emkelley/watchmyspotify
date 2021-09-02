@@ -3,9 +3,7 @@
     <div class="hero is-dark">
       <div class="hero-body has-text-centered">
         <h1 class="title">Watch My Spotify</h1>
-        <h2 class="subtitle">
-          A web experiment by <a href="https://emk.dev">Eric Kelley</a>
-        </h2>
+        <h2 class="subtitle">a web experiment</h2>
       </div>
     </div>
     <div class="container is-widescreen">
@@ -15,31 +13,23 @@
           <b-field label="Spotify Playlist URL">
             <b-input size="" v-model="playlistURL" />
           </b-field>
-          <small>Playlist must be public - demo playlist below:</small>
+          <small>
+            The playlist must be <strong>public</strong> and
+            <strong>50 songs or less</strong> . This is due to the method I'm
+            using to generate YouTube Playlists. Reference demo playlist below:
+          </small>
           <br />
-
           <code>
             https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1?si=7d1352b54dcd4d13
           </code>
           <br />
-          <br />
-
-          <b-field
-            label="YouTube Data API Key"
-            message="By default the app will use my API key but that usage will get used up pretty quickly. If you are getting errors, enter your own YouTube Data API key in this field. Songs and their matching YouTube videos are cached to help reduce the reliance on the YouTube API but that takes time to build up."
-          >
-            <b-input
-              size="is-small"
-              placeholder="Enter API Key here"
-              v-model="userProvidedAPIKey"
-            />
-          </b-field>
-          <br />
+          <br /><br />
           <b-button
             type="is-primary"
             expanded
             @click="start"
             label="🪄 Convert Playlist to Music Videos"
+            :disabled="!playlistURL"
           />
         </div>
         <div class="column is-8">
@@ -52,6 +42,9 @@
                 </div>
               </div>
               <div class="level-right">
+                <div class="level-item">
+                  <small></small>
+                </div>
                 <a
                   class="button is-outlined"
                   :href="generatedPlaylistURL"
@@ -65,6 +58,11 @@
             <br />
             <div v-show="!finalYTURL">
               <center>
+                <p>{{ queryCount }}/{{ playlistData.length }}</p>
+                <p v-if="queryCount === playlistData.length">
+                  Waiting for responses from API...
+                </p>
+
                 <div class="lds-ellipsis">
                   <div></div>
                   <div></div>
@@ -103,6 +101,28 @@
         </div>
       </div>
     </div>
+    <footer>
+      <div class="content has-text-centered">
+        <small>
+          Made with <span class="icon">💖</span> by
+          <a href="https://emk.dev" target="_blank" rel="noopener">
+            Eric Kelley
+          </a>
+          using Netlify Functions, Puppeteer and the Spotify Web API.
+        </small>
+        <br />
+        <small>
+          Fork on
+          <a
+            href="https://github.com/emkelley/watchmyspotify"
+            target="_blank"
+            rel="noopener"
+          >
+            GitHub
+          </a>
+        </small>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -113,55 +133,9 @@ export default {
   name: 'Home',
   data() {
     return {
-      playlistURL:
-        'https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1?si=7d1352b54dcd4d13',
+      playlistURL: undefined,
       playlistData: undefined,
-      ytResultsURLs: [
-        'Vsy1URDYK88',
-        'cf-T-kmwG7o',
-        'H1iGOgs4fLE',
-        '47p2ePDdGlU',
-        'uS2D7bTszK0',
-        'AHCI2rHqoco',
-        'WDUMQ9kJAN4',
-        '6MkS_CCYIaI',
-        'uOFTqVi-qp4',
-        '2Sk_35dNEy4',
-        'UfzYGAhbSTU',
-        'kjIATfF9xxA',
-        'jQd9nI69ND8',
-        'ogSax6k3adU',
-        'k2GngkTy9-w',
-        'F8oK8XT6el0',
-        'SCD2tB1qILc',
-        'VT9q8-i8e7Q',
-        'ZVkWiOclnDg',
-        'eS_korRhTDk',
-        'EUw6Ju3STB8',
-        'PI8lXMlU7XM',
-        'Ys0hjbGiAoA',
-        'HXaMZAPAR6g',
-        'gBkWR-WfEeU',
-        '62fdti-o_mo',
-        'UQtcXzIXEIo',
-        '8sADfWE44HQ',
-        '_cB3HXVvm0g',
-        '5AOtEnH87Mg',
-        'HAIDqt2aUek',
-        'xvtNS6hbVy4',
-        'MwSkC85TDgY',
-        'w3aFvlggYC4',
-        'z068utooQUM',
-        'E66v5GOPgkU',
-        'uaKc_zmtWqo',
-        'IxxstCcJlsc',
-        'UT6d6RC2gS8',
-        'sOS9aOIXPEk',
-        'JI5noh4OyXc',
-        'a5uQMwRMHcs',
-        'SCD2tB1qILc',
-        'qIz-9CHVQUc',
-      ],
+      ytResultsURLs: [],
       userProvidedAPIKey: undefined,
       queryCount: 1,
       finalYTURL: undefined,
@@ -197,7 +171,7 @@ export default {
         );
         if (cacheHit) this.ytResultsURLs.push(cacheHit);
         else {
-          this.searchYouTube(
+          this.searchYouTubePuppeteer(
             `${track.track.name} - ${track.track.album.artists[0].name}`,
             track.track.external_urls.spotify
           );
@@ -218,6 +192,21 @@ export default {
           },
         });
         const ytID = data.data[0].id.videoId;
+        this.ytResultsURLs.push(ytID);
+        this.cacheResults(ytID, trackURL);
+      } catch (error) {
+        this.throwError();
+      }
+    },
+    async searchYouTubePuppeteer(query, trackURL) {
+      console.log('puppeteer query ran');
+      try {
+        const data = await axios.get('/.netlify/functions/headless', {
+          params: {
+            query: query,
+          },
+        });
+        const ytID = data.data;
         this.ytResultsURLs.push(ytID);
         this.cacheResults(ytID, trackURL);
       } catch (error) {
@@ -251,13 +240,13 @@ export default {
       this.$buefy.toast.open({
         queue: false,
         duration: 3000,
-        message: `Couldn't get YouTube results. The API key probably hit it's limit`,
+        message: `A Lambda request timed out, try again after this finishes. Continuing...`,
         position: 'is-bottom-right',
-        type: 'is-danger',
+        type: 'is-warning',
       });
     },
     createYTembed(id) {
-      return `https://www.youtube-nocookie.com/embed/videoseries?list=${id}&autoplay=1`;
+      return `https://www.youtube-nocookie.com/embed/videoseries?list=${id}&autoplay=0`;
     },
   },
 };
@@ -286,6 +275,11 @@ hr {
   overflow: hidden;
   aspect-ratio: 1 / 1;
 }
+footer {
+  background: black;
+  padding: 2rem 0;
+  margin-top: 10rem;
+}
 .hero {
   border-top: 10px solid #00d261;
   border-bottom-right-radius: 1.5rem;
@@ -311,6 +305,9 @@ hr {
   border-radius: 50%;
   background: #00d261;
   animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+strong {
+  color: #00d261;
 }
 .lds-ellipsis div:nth-child(1) {
   left: 8px;

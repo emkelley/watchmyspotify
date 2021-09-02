@@ -9,7 +9,6 @@ exports.handler = (event, context, callback) => {
         path: `/watch_videos?video_ids=${ids}`,
       },
       (response) => {
-        console.log(response.responseUrl);
         const plstID = response.responseUrl.split('=')[2];
         callback(null, {
           statusCode: 200,
