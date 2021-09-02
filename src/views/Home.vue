@@ -33,10 +33,17 @@
           </div>
           <br />
           <small>
-            Sometimes the progress indicatior doesn't update properly. If an
+            Sometimes the progress indicator doesn't update properly. If an
             error comes up when the playlist appears, wait a minute and try
             again - it should work. If you're curious, you can see more detailed
             information in the console.
+          </small>
+          <br />
+          <br />
+          <small>
+            It could take a few minutes to scrape the YouTube data if the songs
+            haven't been cached by other users. Go grab some coffee while you
+            wait, it'll be worth it.
           </small>
           <br />
           <br /><br />
