@@ -6,6 +6,14 @@
         <h2 class="subtitle">a web experiment</h2>
       </div>
     </div>
+    <a
+      class="github-fork-ribbon"
+      href="https://github.com/emkelley/watchmyspotify"
+      data-ribbon="Fork me on GitHub"
+      title="Fork me on GitHub"
+      >Fork me on GitHub</a
+    >
+
     <div class="container is-widescreen">
       <div class="columns is-multiline is-centered">
         <div class="column is-5">
@@ -19,12 +27,12 @@
             <small>1) The playlist must be <strong>public</strong></small>
             <br />
             <small>
-              2) Video playlists are capped at <strong>50 songs or less</strong>
+              2) Video playlists are capped at <strong>50 songs max</strong> due
+              to weird API limitations
             </small>
           </div>
           <br />
           <small>
-            This is due to the method I'm using to generate YouTube Playlists.
             If the generated playlist doesn't appear properly or with not the
             correct amount of videos, just run the conversion one more time.
           </small>
@@ -139,7 +147,7 @@ export default {
   name: 'Home',
   data() {
     return {
-      playlistURL: 'https://open.spotify.com/playlist/3DrL4y1VUT5KW1a4SSXPBh',
+      playlistURL: 'https://open.spotify.com/playlist/2e5zLODjQB04wovyMU6ZQa',
       playlistData: undefined,
       ytResultsURLs: [],
       userProvidedAPIKey: undefined,
