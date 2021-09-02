@@ -1,5 +1,8 @@
 # Watch My Spotify
 
+
+## This readme is outdated, I'll update it to reflect Puppeteer changes when I get some free time
+
 [![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/emkelley/watchmyspotify)
 
 A simple app that converts your public spotify playlists to a YouTube playlist.
