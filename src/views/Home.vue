@@ -33,8 +33,10 @@
           </div>
           <br />
           <small>
-            If the generated playlist doesn't appear properly or with not the
-            correct amount of videos, just run the conversion one more time.
+            Sometimes the progress indicatior doesn't update properly. If an
+            error comes up when the playlist appears, wait a minute and try
+            again - it should work. If you're curious, you can see more detailed
+            information in the console.
           </small>
           <br />
           <br /><br />
