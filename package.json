@@ -6,15 +6,19 @@
     "dev": "netlify dev -p 8885",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "ntld": "yarn build && netlify deploy --dir=dist --functions=functions"
   },
   "dependencies": {
     "axios": "^0.21.1",
     "buefy": "^0.9.8",
+    "cheerio": "^1.0.0-rc.10",
+    "chrome-aws-lambda": "^10.1.0",
     "core-js": "^3.6.5",
     "firebase": "^8.10.0",
     "follow-redirects": "^1.14.2",
     "googleapis": "^81.0.0",
+    "puppeteer-core": "^10.2.0",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0"
   },
@@ -29,6 +33,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^6.2.2",
     "prettier": "^2.2.1",
+    "puppeteer": "^10.2.0",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "vue-template-compiler": "^2.6.11"
