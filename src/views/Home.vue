@@ -13,14 +13,25 @@
           <b-field label="Spotify Playlist URL">
             <b-input size="" v-model="playlistURL" />
           </b-field>
+          <br />
+          <div>
+            <h3 class="heading">Two things to know:</h3>
+            <small>1) The playlist must be <strong>public</strong></small>
+            <br />
+            <small>
+              2) Video playlists are capped at <strong>50 songs or less</strong>
+            </small>
+          </div>
+          <br />
           <small>
-            The playlist must be <strong>public</strong> and
-            <strong>50 songs or less</strong> . This is due to the method I'm
-            using to generate YouTube Playlists. Reference demo playlist below:
+            This is due to the method I'm using to generate YouTube Playlists.
+            If the generated playlist doesn't appear properly or with not the
+            correct amount of videos, just run the conversion one more time.
           </small>
           <br />
+          <br />
           <code>
-            https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1?si=7d1352b54dcd4d13
+            https://open.spotify.com/playlist/3DrL4y1VUT5KW1a4SSXPBh
           </code>
           <br />
           <br /><br />
@@ -146,6 +157,11 @@ export default {
       const base = 'http://www.youtube.com/watch_videos?video_ids=';
       return `${base}${this.ytResultsURLs.join()}`;
     },
+    allVidsFetched() {
+      return this.ytResultsURLs.length === this.playlistData.length
+        ? true
+        : false;
+    },
   },
   methods: {
     start() {
@@ -164,6 +180,7 @@ export default {
         },
       });
       this.playlistData = data.data.items;
+
       for (const track of data.data.items) {
         this.queryCount++;
         const cacheHit = await this.checkCache(
@@ -171,31 +188,15 @@ export default {
         );
         if (cacheHit) this.ytResultsURLs.push(cacheHit);
         else {
-          this.searchYouTubePuppeteer(
+          const scrapedID = await this.searchYouTubePuppeteer(
             `${track.track.name} - ${track.track.album.artists[0].name}`,
             track.track.external_urls.spotify
           );
+          this.ytResultsURLs.push(scrapedID);
         }
 
-        if (this.queryCount == this.playlistData.length) {
+        if (this.allVidsFetched)
           this.finalYTURL = await this.getFinalURL(this.ytResultsURLs);
-        }
-      }
-    },
-    async searchYouTube(query, trackURL) {
-      console.log('yt query ran');
-      try {
-        const data = await axios.get('/.netlify/functions/yt', {
-          params: {
-            query: query,
-            API_KEY: this.userProvidedAPIKey,
-          },
-        });
-        const ytID = data.data[0].id.videoId;
-        this.ytResultsURLs.push(ytID);
-        this.cacheResults(ytID, trackURL);
-      } catch (error) {
-        this.throwError();
       }
     },
     async searchYouTubePuppeteer(query, trackURL) {
