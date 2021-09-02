@@ -2,3 +2,5 @@
   functions = "functions"
 [dev]
   framework = "vue"
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
