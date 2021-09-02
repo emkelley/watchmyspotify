@@ -29,11 +29,6 @@
             correct amount of videos, just run the conversion one more time.
           </small>
           <br />
-          <br />
-          <code>
-            https://open.spotify.com/playlist/3DrL4y1VUT5KW1a4SSXPBh
-          </code>
-          <br />
           <br /><br />
           <b-button
             type="is-primary"
