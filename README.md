@@ -10,7 +10,7 @@ Built with Vue, Spotify API, Puppeteer, Netlify Functions and some good 'ole und
 ### Using the app
 Enter a **Public** Spotify playlist URL in the input box and hit the big green button. Keep playlists 50 songs or less.
 
-Why only 50? To be blunt, the YouTube Data API is expensive for an app like this so I use an undocumented endpoint that generates playlists from an array of IDs - and that is the bottleneck.
+Why only 50? I use an undocumented endpoint that generates playlists from an array of video IDs with a hard cap at 50 videos.
 
 
 ![](demo.gif)
