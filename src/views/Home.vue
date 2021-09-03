@@ -54,6 +54,33 @@
             label="🪄 Convert Playlist to Music Videos"
             :disabled="!playlistURL"
           />
+          <br /><br />
+          <section v-if="playlistData" class="metadata">
+            <article class="media">
+              <figure class="media-left">
+                <p class="image is-128x128">
+                  <img :src="playlistRaw.images[0].url" />
+                </p>
+              </figure>
+              <div class="media-content">
+                <div class="content">
+                  <h1 class="subtitle is-5">{{ playlistRaw.name }}</h1>
+                  Created by:
+                  <a :href="playlistRaw.owner.external_urls.spotify">
+                    {{ playlistRaw.owner.display_name }}
+                  </a>
+                  <br />
+                  <span v-if="playlistRaw.description">
+                    Description: {{ playlistRaw.description }}
+                  </span>
+                  <br />
+                  <span v-if="playlistRaw.description">
+                    Tracks: {{ playlistRaw.tracks.items.length }}
+                  </span>
+                </div>
+              </div>
+            </article>
+          </section>
         </div>
         <div class="column is-8">
           <div v-if="playlistData">
@@ -156,12 +183,13 @@ export default {
   name: 'Home',
   data() {
     return {
-      playlistURL: 'https://open.spotify.com/playlist/2e5zLODjQB04wovyMU6ZQa',
+      playlistURL: 'https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1',
       playlistData: undefined,
       ytResultsURLs: [],
       userProvidedAPIKey: undefined,
       queryCount: 1,
       finalYTURL: undefined,
+      playlistRaw: undefined,
     };
   },
   computed: {
@@ -191,9 +219,10 @@ export default {
           plst: playlistID,
         },
       });
-      this.playlistData = data.data.items;
+      this.playlistRaw = data.data;
+      this.playlistData = data.data.tracks.items;
 
-      for (const track of data.data.items) {
+      for (const track of this.playlistData) {
         this.queryCount++;
         const cacheHit = await this.checkCache(
           track.track.external_urls.spotify
@@ -259,7 +288,7 @@ export default {
       });
     },
     createYTembed(id) {
-      return `https://www.youtube-nocookie.com/embed/videoseries?list=${id}&autoplay=0`;
+      return `https://www.youtube.com/embed/videoseries?list=${id}&autoplay=1`;
     },
   },
 };
@@ -319,8 +348,9 @@ footer {
   background: #00d261;
   animation-timing-function: cubic-bezier(0, 1, 1, 0);
 }
-strong {
-  color: #00d261;
+strong,
+.subtitle {
+  color: #00d261 !important;
 }
 .lds-ellipsis div:nth-child(1) {
   left: 8px;
