@@ -30,15 +30,10 @@ export const checkCache = async (trackURL: string) => {
   return result.ytID;
 };
 
-export const cacheResults = async (
-  trackName: string,
-  ytID: string,
-  spotifyURL: string
-) => {
+export const cacheResults = async (ytID: string, spotifyURL: string) => {
   const docRef = await addDoc(cacheRef, {
-    ["track-name"]: trackName,
-    ["track-yt"]: ytID,
-    ["track-spotify"]: spotifyURL,
+    ytID: ytID,
+    spotifyURL: spotifyURL,
   });
   console.log(`💾 Song cached: ${ytID} - ${docRef.id}`);
   return docRef.id;

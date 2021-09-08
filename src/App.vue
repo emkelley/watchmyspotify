@@ -17,9 +17,11 @@ let ytIDArray = ref<string[]>([]);
 let queryCount = ref<number>(0);
 let finalYTURL = ref<string>("");
 let loading = ref<boolean>(false);
+let logs = ref<string[]>([]);
 
 const getPlaylistTracks = async () => {
   reset();
+  loading.value = true;
 
   const playlistID = playlistURL.value.split("/")[4];
   const data = await axios.get("/api/playlist", {
@@ -45,24 +47,20 @@ const analyzeTracks = async () => {
     const TRACK_URL = item.track.external_urls.spotify;
     const QUERY = `${TRACK_NAME} - ${TRACK_ARTIST}`;
 
-    console.log(
-      `🔎 Analyzing song --- ${queryCount.value + 1}/${
-        playlistTracks.value.length
-      } --- ${TRACK_NAME}`
+    addToLog(
+      `🔎 Analyzing song ${queryCount.value}/${playlistTracks.value.length} - ${TRACK_NAME}`
     );
 
     const cacheHit = await checkCache(TRACK_URL);
 
     if (cacheHit) {
-      console.log(`☑️ Cache hit for song: ${TRACK_NAME}`);
+      addToLog(`☑️ Cache hit: ${TRACK_NAME}`);
       ytIDArray.value.push(cacheHit);
     } else {
-      const scrapedID: string = await searchYouTubePuppeteer(
-        TRACK_NAME,
-        QUERY,
-        TRACK_URL
-      );
-      console.log(`🪒 Scraped song: ${TRACK_NAME} | Video ID: ${scrapedID}`);
+      addToLog(`❌ No cache hit for: ${TRACK_NAME}`);
+      addToLog(`🪒 Now scraping for: ${TRACK_NAME}`);
+      const scrapedID: string = await searchYouTubePuppeteer(QUERY, TRACK_URL);
+      addToLog(`🪒 Scraped: ${TRACK_NAME} with VID: ${scrapedID}`);
       ytIDArray.value.push(scrapedID);
     }
 
@@ -70,15 +68,11 @@ const analyzeTracks = async () => {
   }
 };
 
-const searchYouTubePuppeteer = async (
-  TRACK_NAME: string,
-  QUERY: string,
-  TRACK_URL: string
-) => {
+const searchYouTubePuppeteer = async (QUERY: string, TRACK_URL: string) => {
   const res = await axios.get(`/api/scrape?query=${QUERY}`);
   const ytID: string = res.data;
 
-  cacheResults(TRACK_NAME, ytID, TRACK_URL);
+  cacheResults(ytID, TRACK_URL);
 
   return ytID;
 };
@@ -86,7 +80,7 @@ const searchYouTubePuppeteer = async (
 const getFinalURL = async () => {
   const res = await axios.get(`/api/final?ids=${ytIDArray.value}`);
   finalYTURL.value = `https://www.youtube-nocookie.com/embed/videoseries?list=${res.data}&autoplay=1`;
-  console.log(`🎉 Final URL: ${finalYTURL.value}`);
+  addToLog(`🎉 Final URL: ${finalYTURL.value}`);
   loading.value = false;
 };
 
@@ -95,7 +89,11 @@ const reset = () => {
   ytIDArray.value.length = 0;
   queryCount.value = 0;
   finalYTURL.value = "";
-  loading.value = false;
+};
+
+const addToLog = (msg: string) => {
+  logs.value.unshift(msg);
+  console.log(msg);
 };
 </script>
 
@@ -128,7 +126,7 @@ const reset = () => {
           class="py-2 px-5 bg-gray-100 w-full rounded-md text-gray-900 text-xl"
           v-model="playlistURL"
         />
-        <hr class="my-8 border-green-400" />
+        <hr class="mt-4 mb-6 border-green-400" />
         <h3 class="text-green-400 mb-2 uppercase font-medium">
           A couple things to note:
         </h3>
@@ -152,13 +150,15 @@ const reset = () => {
             font-medium
             rounded-lg
             disabled:opacity-50
+            w-full
           "
           :disabled="loading"
           @click="getPlaylistTracks"
         >
           🪄 Convert Playlist to Music Videos
         </button>
-        <footer class="mt-20">
+
+        <footer class="">
           <div class="text-center text-gray-300">
             <small>
               Made with <span class="icon">💖</span> by
@@ -176,8 +176,21 @@ const reset = () => {
                 class="text-green-400"
               >
                 GitHub
-              </a></small
-            >
+              </a>
+            </small>
+            <div class="mt-4">
+              <section
+                v-for="(msg, index) in logs.slice(0, 3)"
+                :key="index"
+                class="bg-gray-900 text-green-300 max-h-20 rounded"
+              >
+                <p
+                  class="font-mono text-xs p-2 border border-green-900 rounded"
+                >
+                  {{ msg }}
+                </p>
+              </section>
+            </div>
           </div>
         </footer>
       </div>
