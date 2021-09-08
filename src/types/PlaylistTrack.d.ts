@@ -18,8 +18,8 @@ export interface ExternalUrls {
 }
 export interface Track {
   album: Album;
-  artists?: (ArtistsEntity)[] | null;
-  available_markets?: (string)[] | null;
+  artists?: ArtistsEntity[] | null;
+  available_markets?: string[] | null;
   disc_number: number;
   duration_ms: number;
   episode: boolean;
@@ -39,12 +39,12 @@ export interface Track {
 }
 export interface Album {
   album_type: string;
-  artists?: (ArtistsEntity)[] | null;
-  available_markets?: (string)[] | null;
+  artists?: ArtistsEntity[] | null;
+  available_markets?: string[] | null;
   external_urls: ExternalUrls;
   href: string;
   id: string;
-  images?: (ImagesEntity)[] | null;
+  images?: ImagesEntity[] | null;
   name: string;
   release_date: string;
   release_date_precision: string;

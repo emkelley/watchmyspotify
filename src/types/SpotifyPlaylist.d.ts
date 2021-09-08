@@ -5,7 +5,7 @@
   followers: Followers;
   href: string;
   id: string;
-  images?: (ImagesEntity)[] | null;
+  images?: ImagesEntity[] | null;
   name: string;
   owner: Owner;
   primary_color?: null;
@@ -37,7 +37,7 @@ export interface Owner {
 }
 export interface Tracks {
   href: string;
-  items?: (ItemsEntity)[] | null;
+  items?: ItemsEntity[] | null;
   limit: number;
   next?: null;
   offset: number;
@@ -61,7 +61,7 @@ export interface AddedBy {
 }
 export interface Track {
   album: Album;
-  artists?: (ArtistsEntity)[] | null;
+  artists?: ArtistsEntity[] | null;
   available_markets?: (string | null)[] | null;
   disc_number: number;
   duration_ms: number;
@@ -82,12 +82,12 @@ export interface Track {
 }
 export interface Album {
   album_type: string;
-  artists?: (ArtistsEntity)[] | null;
+  artists?: ArtistsEntity[] | null;
   available_markets?: (string | null)[] | null;
   external_urls: ExternalUrls;
   href: string;
   id: string;
-  images?: (ImagesEntity)[] | null;
+  images?: ImagesEntity[] | null;
   name: string;
   release_date: string;
   release_date_precision: string;
