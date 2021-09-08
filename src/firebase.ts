@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 
 const config = {
-  apiKey: process.env.VITE_FIREBASE,
+  apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "watchmyspotify.firebaseapp.com",
   projectId: "watchmyspotify",
   storageBucket: "watchmyspotify.appspot.com",
