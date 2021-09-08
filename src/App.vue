@@ -111,9 +111,13 @@ const addToLog = (msg: string) => {
       <h1 class="text-center text-white text-3xl font-bold mb-5">
         Watch My Spotify
       </h1>
+      <h2 class="text-center text-gray-200 mb-5">
+        A simple app that converts public Spotify playlists to YouTube
+        playlists.
+      </h2>
       <h2 class="text-center text-gray-200">
-        A web experiment made with: Vue 3, Typescript, <br />
-        Puppeteer, Netlify Functions, Spotify API, and Firebase
+        Made with: Vue 3, Typescript, Netlify Functions,<br />
+        Puppeteer, Firebase, and the Spotify Web API
       </h2>
     </section>
     <section class="container px-10 flex flex-row">
