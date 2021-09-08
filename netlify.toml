@@ -9,9 +9,8 @@
 [dev]
   framework = "vue"
 
-[funtions]
+[functions]
   external_node_modules = ["chrome-aws-lambda"]
-  runtime = "nodejs14.x"
 
 [[plugins]]
   package = "@netlify/plugin-functions-install-core"
