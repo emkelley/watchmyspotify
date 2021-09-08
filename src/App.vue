@@ -115,7 +115,7 @@ const reset = () => {
       </h1>
       <h2 class="text-center text-gray-200">
         A web experiment made with: Vue 3, Typescript, <br />
-        Tailwind, Netlify Functions, Spotify API, and Firebase
+        Puppeteer, Netlify Functions, Spotify API, and Firebase
       </h2>
     </section>
     <section class="container px-10 flex flex-row">
