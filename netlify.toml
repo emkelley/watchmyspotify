@@ -1,6 +1,17 @@
+[[redirects]]
+  from = "/api/*"
+  status = 200
+  to = "/.netlify/functions/:splat"
+
 [build]
   functions = "functions"
+
 [dev]
   framework = "vue"
+
+[funtions]
+  external_node_modules = ["chrome-aws-lambda"]
+  runtime = "nodejs14.x"
+
 [[plugins]]
   package = "@netlify/plugin-functions-install-core"

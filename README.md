@@ -5,7 +5,7 @@
 
 A simple app that converts your public spotify playlists to a YouTube playlist.
 
-Built with Vue, Spotify API, Puppeteer, Netlify Functions and some good 'ole undocumented YouTube endpoints.
+Built with Vue 3, Typescript, Spotify API, Puppeteer, Netlify Functions and some good 'ole undocumented YouTube endpoints.
 
 ### Using the app
 Enter a **Public** Spotify playlist URL in the input box and hit the big green button. Keep playlists 50 songs or less.
