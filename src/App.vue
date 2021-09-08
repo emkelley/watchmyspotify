@@ -123,7 +123,8 @@ const addToLog = (msg: string) => {
         </h3>
         <input
           type="text"
-          class="py-2 px-5 bg-gray-100 w-full rounded-md text-gray-900 text-xl"
+          class="py-2 px-5 bg-gray-100 w-full rounded-md text-gray-900 text-sm"
+          placeholder="Spotify playlist URL"
           v-model="playlistURL"
         />
         <hr class="mt-4 mb-6 border-green-400" />
@@ -134,11 +135,14 @@ const addToLog = (msg: string) => {
         <p class="text-gray-200 mb-4">
           2) YouTube playlists are capped at 50 songs max due to API limits
         </p>
-        <p class="text-gray-200">
+        <p class="text-gray-200 mb-4">
           It could take a few minutes to scrape the YouTube data if the songs
-          haven't been cached by other users. If it get's stuck trying to
-          scrape, run the conversion again. Go grab some coffee while you wait,
-          it'll be worth it.
+          haven't been cached by other users.
+        </p>
+        <p class="text-gray-200">
+          If it get's stuck on one song for too long, or the playlist doesn't
+          load correctly, just run the conversion again. Go get some coffee
+          while you wait, it'll be worth it.
         </p>
         <button
           class="
