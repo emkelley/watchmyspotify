@@ -1,11 +1,11 @@
-const { Handler } = require("@netlify/functions");
-const axios = require("axios");
+import { Handler } from "@netlify/functions";
+import axios from "axios";
 const ID = process.env.SPOTIFY_CLIENT_ID;
 const SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REFRESH = process.env.SPOTIFY_REFRESH_TOKEN;
 const authBuffer = Buffer.from(`${ID}:${SECRET}`).toString("base64");
 
-const handler: Handler = async (event, context) => {
+const handler: Handler = async (event) => {
   const playlist_id = event.queryStringParameters.plst;
   const { data } = await axios({
     method: "POST",

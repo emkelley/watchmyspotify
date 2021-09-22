@@ -1,4 +1,4 @@
-const { https } = require("follow-redirects");
+import { https } from "follow-redirects";
 
 exports.handler = (event, context, callback) => {
   if (event.httpMethod === "GET") {
