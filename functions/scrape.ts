@@ -43,10 +43,13 @@ const scrapeResults = async (query: string) => {
 const parse = (html) => {
   const $ = cheerio.load(html);
   const results = [];
-  $("#contents ytd-video-renderer,#contents ytd-grid-video-renderer").each(
-    (i, link) =>
-      results.push($(link).find("#video-title").attr("href").slice(-11))
-  );
+  $("#contents ytd-video-renderer,#contents ytd-grid-video-renderer")
+    .slice(0, 1)
+    .each((i, link) => {
+      const title: string = $(link).find("#video-title").attr("href");
+      const id: string = title.slice(-11);
+      results.push(id);
+    });
   return results[0];
 };
 
