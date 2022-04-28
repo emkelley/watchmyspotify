@@ -20,7 +20,7 @@ let loading = ref<boolean>(false);
 let spotifyPlaylistRaw = ref<SpotifyPlaylist>();
 let spotifyPlaylistTracks = ref<PlaylistTrack[]>([]);
 let finalTracks = ref<TRACK_META[]>([]);
-
+let failedTracks = ref<TRACK_META[]>([]);
 const getPlaylistTracks = async (): Promise<void> => {
   reset();
   loading.value = true;
@@ -69,7 +69,11 @@ const searchYouTubePuppeteer = async (TRACK: TRACK_META) => {
   const ytID: string = res.data;
   console.log(ytID);
   TRACK.youtube = ytID;
-  cacheResults(TRACK);
+  if (ytID.length > 0) cacheResults(TRACK);
+  else {
+    failedTracks.value.push(TRACK);
+    console.log(`${TRACK.name} - ${TRACK.artist} failed to scrape`);
+  }
   return ytID;
 };
 
@@ -249,7 +253,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                   <h2
                     class="mb-1 font-bold leading-none text-gray-100 truncate text-3xl"
                   >
-                    0
+                    {{ failedTracks.length }}
                   </h2>
 
                   <p class="leading-none text-gray-300">Failed to scrape</p>

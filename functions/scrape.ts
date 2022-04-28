@@ -17,10 +17,9 @@ const scrapeResults = async (query: string) => {
   const fullQuery = ytQueryBase + query.replace(" ", "+") + " official video";
 
   const browser = await puppeteer.launch({
-    args: chromium.args,
+    args: ["--no-zygote", "--no-sandbox"],
     executablePath: process.env.CHROME_EXE || (await chromium.executablePath),
     headless: true,
-    waitUntil: "domcontentloaded",
   });
 
   const page = await browser.newPage();
@@ -37,7 +36,7 @@ const scrapeResults = async (query: string) => {
   const html = await page.content();
   const finalID = parse(html);
 
-  browser.close();
+  await browser.close();
   return finalID;
 };
 
