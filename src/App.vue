@@ -12,7 +12,9 @@ let playlistURL = ref<string>(
   "https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1"
 );
 let tracksAnalyzed = ref<number>(0);
-let finalYTURL = ref<string>("");
+let embedURL = ref<string>(
+  "https://www.youtube.com/embed/videoseries?list=TLPPMjcwNDIwMjKzoSF7OkTwuw&autoplay=1"
+);
 let finalYTShareURL = ref<string>("");
 let loading = ref<boolean>(false);
 let spotifyPlaylistRaw = ref<SpotifyPlaylist>();
@@ -28,7 +30,7 @@ const getPlaylistTracks = async (): Promise<void> => {
     },
   });
   const raw = data.data;
-  const playlistItems = data.data.tracks.items.slice(0, 50);
+  const playlistItems = data.data.tracks.items.slice(0, 49);
   spotifyPlaylistRaw.value = raw as SpotifyPlaylist;
   spotifyPlaylistTracks.value = playlistItems as PlaylistTrack[];
   analyzeTracks();
@@ -65,16 +67,22 @@ const searchYouTubePuppeteer = async (TRACK: TRACK_META) => {
   const query = `${TRACK.artist} - ${TRACK.name}`.replace(" ", "+");
   const res = await axios.get(`/.netlify/functions/scrape?query=${query}`);
   const ytID: string = res.data;
+  console.log(ytID);
   TRACK.youtube = ytID;
   cacheResults(TRACK);
   return ytID;
 };
 
 const getFinalURL = async () => {
-  const ytIDs = finalTracks.value.map((item) => item.youtube);
+  const ytIDs = finalTracks.value
+    .map((item) => item.youtube)
+    .filter((item) => item);
+  console.log(ytIDs);
   const res = await axios.get(`/.netlify/functions/final?ids=${ytIDs}`);
   finalYTShareURL.value = `https://www.youtube.com/watch_videos?video_ids=${ytIDs}`;
-  finalYTURL.value = `https://www.youtube-nocookie.com/embed/videoseries?list=${res.data}&autoplay=1`;
+  console.log(res.data);
+  if (res.data.startsWith("TL"))
+    embedURL.value = `https://www.youtube.com/embed/videoseries?list=${res.data}&autoplay=1`;
   loading.value = false;
 };
 
@@ -82,7 +90,7 @@ const reset = () => {
   spotifyPlaylistTracks.value.length = 0;
   finalTracks.value.length = 0;
   tracksAnalyzed.value = 0;
-  finalYTURL.value = "";
+  embedURL.value = "";
 };
 
 const makeYouTubeURLWithID = (spotifyURL: string) => {
@@ -118,17 +126,23 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
 
             <hr class="mt-4 mb-6 border-green-600" />
 
-            <div class="text-center">
+            <div class="">
               <h3 class="text-green-400 mb-2 uppercase font-medium">
                 Converter Limitations:
               </h3>
 
-              <p class="text-gray-200">
+              <p class="text-gray-200 py-1">
                 1) The Spotify playlist must be public
               </p>
 
-              <p class="text-gray-200 mb-4">
+              <p class="text-gray-200 py-1">
                 2) Playlists are limited to 50 songs
+              </p>
+
+              <p class="text-gray-200 py-1 mb-4">
+                3) If you get "This video is unavailable." errors when the embed
+                opens,<br />
+                try opening the playlist with the button below.
               </p>
             </div>
 
@@ -160,14 +174,14 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
         </div>
 
         <section
-          v-if="spotifyPlaylistRaw && finalYTURL.length > 0"
+          v-if="spotifyPlaylistRaw && embedURL.length > 0"
           class="bg-gray-950 col-span-2 border border-green-800 shadow-2xl"
         >
           <iframe
-            v-if="finalYTURL.length > 1"
+            v-if="embedURL.length > 1"
             class="playlist-iframe w-full mx-auto"
             style="aspect-ratio: 16 / 9"
-            :src="finalYTURL"
+            :src="embedURL"
             title="YouTube video player"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
