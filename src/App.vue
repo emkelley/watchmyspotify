@@ -132,9 +132,9 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
 
               <hr class="mt-4 mb-6 border-emerald-600" />
 
-              <div class="">
+              <div class="text-sm">
                 <h3 class="text-emerald-400 mb-2 uppercase font-medium">
-                  Converter Limitations:
+                  Things to keep in mind:
                 </h3>
 
                 <p class="text-emerald-50 py-1">
@@ -145,9 +145,14 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                   2) Playlists are limited to 49 songs (API limits)
                 </p>
 
-                <p class="text-emerald-50 py-1 mb-4">
+                <p class="text-emerald-50 py-1">
                   3) If you get "This video is unavailable." errors when the
                   embed opens, try opening the playlist with the button below.
+                </p>
+
+                <p class="text-emerald-50 py-1 mb-4">
+                  4) If songs time out when scraping, run the converter again on
+                  the playlist to pick up those failed songs.
                 </p>
               </div>
 
