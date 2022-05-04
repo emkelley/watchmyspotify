@@ -9,7 +9,7 @@ import { ref } from "vue";
 import { checkCache, cacheResults } from "@/firebase";
 
 let playlistURL = ref<string>(
-  "https://open.spotify.com/playlist/37i9dQZF1DX4dyzvuaRJ0n?si=98bd60ffa8404e24"
+  "https://open.spotify.com/playlist/2e5zLODjQB04wovyMU6ZQa"
 );
 let tracksAnalyzed = ref<number>(0);
 let embedURL = ref<string>(
@@ -53,8 +53,11 @@ const analyzeTracks = async () => {
     if (cacheHit) finalTracks.value.push(cacheHit);
     else {
       const scrapedID: string = await searchYouTubePuppeteer(TRACK);
-      TRACK.youtube = scrapedID;
-      finalTracks.value.push(TRACK);
+      if (scrapedID.length == 0) failedTracks.value.push(TRACK);
+      else {
+        TRACK.youtube = scrapedID;
+        finalTracks.value.push(TRACK);
+      }
     }
 
     if (spotifyPlaylistTracks.value.length === finalTracks.value.length) {
@@ -86,7 +89,7 @@ const getFinalURL = async () => {
   finalYTShareURL.value = `https://www.youtube.com/watch_videos?video_ids=${ytIDs}`;
   console.log(res.data);
   if (res.data.startsWith("TL"))
-    embedURL.value = `//www.youtube.com/embed/videoseries?list=${res.data}&autoplay=1`;
+    embedURL.value = `https://www.youtube.com/embed/videoseries?list=${res.data}&autoplay=1`;
   loading.value = false;
 };
 
