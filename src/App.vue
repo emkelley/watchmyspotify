@@ -1,13 +1,12 @@
 <script setup lang="ts">
 /* eslint-disable  @typescript-eslint/no-non-null-assertion */
+import { ref } from "vue";
+import axios from "axios";
+import TheFooter from "./components/TheFooter.vue";
+import { checkCache, cacheResults } from "@/firebase";
 import { PlaylistTrack } from "@/interfaces/PlaylistTrack";
 import { SpotifyPlaylist } from "@/interfaces/SpotifyPlaylist";
 import { TRACK_META } from "@/interfaces/TRACK_META";
-import Hero from "@/components/Hero.vue";
-import axios from "axios";
-import { ref } from "vue";
-import { checkCache, cacheResults } from "@/firebase";
-import TheFooter from "./components/TheFooter.vue";
 
 let playlistURL = ref<string>(
   "https://open.spotify.com/playlist/2e5zLODjQB04wovyMU6ZQa"
@@ -69,16 +68,11 @@ const analyzeTracks = async () => {
 
 const searchYouTubePuppeteer = async (TRACK: TRACK_META) => {
   const query = `${TRACK.artist} - ${TRACK.name}`.replace(" ", "+");
-  const res = await axios.get(`/.netlify/functions/scrape?query=${query}`);
-  const ytID: string = res.data;
-  console.log(ytID);
-  TRACK.youtube = ytID;
-  if (ytID.length > 0) cacheResults(TRACK);
-  else {
-    failedTracks.value.push(TRACK);
-    console.log(`${TRACK.name} - ${TRACK.artist} failed to scrape`);
-  }
-  return ytID;
+  const { data } = await axios.get(`/.netlify/functions/scrape?query=${query}`);
+  TRACK.youtube = data;
+  if (data.length > 0) cacheResults(TRACK);
+  else failedTracks.value.push(TRACK);
+  return data;
 };
 
 const getFinalURL = async () => {
@@ -109,113 +103,98 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
 
 <template>
   <main class="app bg-gray-900 min-h-screen pb-24">
-    <Hero
-      title="Watch My Spotify"
-      subtext="Use this tool to convert a Spotify playlist to a YouTube playlist. Playlist conversions are currently limited to 50 tracks."
-    />
-
+    <section
+      class="px-4 py-10 border-b border-emerald-800 bg-gradient-to-br from-emerald-900 to-gray-950 text-center"
+    >
+      <h1 class="text-4xl text-emerald-50 font-bold">Watch My Spotify</h1>
+      <p class="text-emerald-50 max-w-2xl mx-auto mt-5">
+        Use this tool to convert a Spotify playlist to a YouTube playlist.
+        <br />
+        Playlist conversions are currently limited to 49 tracks.
+      </p>
+    </section>
     <div class="container mx-auto px-4">
       <div class="flex flex-col">
-        <section
-          v-if="spotifyPlaylistRaw && embedURL.length > 0"
-          class="w-full p-6"
-        >
-          <div class="bg-gray-950 border border-emerald-800 shadow-2xl">
-            <iframe
-              class="playlist-iframe w-full aspect-video"
-              :src="embedURL"
-              title="YouTube video player"
-              frameborder="0"
-              allowfullscreen
-              allow="autoplay"
-            />
-            <div class="px-8">
-              <a
-                v-if="finalYTShareURL"
-                :href="finalYTShareURL"
-                target="_blank"
-                rel="noopener"
-                class="btn btn-danger btn-lg font-gray-400 my-8 font-bold w-full"
-              >
-                <i class="fab fa-youtube pr-2" />
-                Open on YouTube
-              </a>
-            </div>
-          </div>
-        </section>
         <div class="p-6">
           <div class="bg-gray-950 border border-emerald-800 shadow-2xl p-6">
             <div class="my-auto">
-              <h3 class="text-emerald-400 mb-4 uppercase font-bold">
-                Spotify Playlist URL
+              <h3
+                class="text-emerald-400 mb-4 uppercase font-bold text-xl tracking-wide"
+              >
+                Spotify Playlist URL:
               </h3>
+              <div class="flex flex-row items-center">
+                <input
+                  type="text"
+                  class="py-3 px-5 bg-gray-900 w-full text-gray-200 border border-emerald-700 rounded-none text-base"
+                  placeholder="Spotify playlist URL"
+                  v-model="playlistURL"
+                  @keydown.enter="getPlaylistTracks()"
+                />
 
-              <input
-                type="text"
-                class="py-3 px-5 bg-gray-900 w-full text-gray-200 border border-emerald-800 text-sm"
-                placeholder="Spotify playlist URL"
-                v-model="playlistURL"
-                @keydown.enter="getPlaylistTracks()"
-              />
+                <button
+                  class="btn btn-primary rounded-none border border-emerald-700 btn-lg font-gray-400 font-bold disabled:opacity-50 w-72"
+                  :disabled="loading"
+                  @click="getPlaylistTracks"
+                >
+                  <span v-if="loading" class="mr-2">
+                    <i class="fa-solid fa-cog fa-spin" />
+                  </span>
+                  <span v-else class="mr-2">
+                    <i class="fa-solid fa-rocket" />
+                  </span>
+                  {{ loading ? "Processing..." : "Convert Playlist" }}
+                </button>
+              </div>
 
               <hr class="mt-4 mb-6 border-emerald-600" />
 
-              <div class="text-sm">
+              <div class="text-base tracking-wide">
                 <h3 class="text-emerald-400 mb-2 uppercase font-medium">
                   Things to keep in mind:
                 </h3>
 
                 <p class="text-emerald-50 py-1">
-                  1) The Spotify playlist must be public
+                  - The Spotify playlist must be public
                 </p>
 
                 <p class="text-emerald-50 py-1">
-                  2) Playlists are limited to 49 songs (API limits)
+                  - Playlists are limited to 49 songs (API limits)
                 </p>
 
                 <p class="text-emerald-50 py-1">
-                  3) If you get "This video is unavailable." errors when the
+                  - If you get "This video is unavailable." errors when the
                   embed opens, try opening the playlist with the button below.
                 </p>
 
                 <p class="text-emerald-50 py-1 mb-4">
-                  4) Lastly, have some patience. For each song the backend is
+                  - Lastly, have some patience. For each song the backend is
                   opening and searching YouTube and extracting video IDs. This
                   can take a while - up to 10 seconds per song before timing
                   out. If songs time out when scraping, run the converter again
                   on the playlist to pick up those failed songs.
                 </p>
               </div>
-
-              <button
-                class="btn btn-primary btn-lg font-gray-400 mt-4 font-bold disabled:opacity-50 w-full"
-                :disabled="loading"
-                @click="getPlaylistTracks"
-              >
-                <span v-if="loading" class="mr-2">
-                  <i class="fa-solid fa-cog fa-spin" />
-                </span>
-                <span v-else class="mr-2">
-                  <i class="fa-solid fa-rocket" />
-                </span>
-                {{ loading ? "Processing..." : "Convert Playlist" }}
-              </button>
             </div>
           </div>
         </div>
       </div>
 
       <section v-if="spotifyPlaylistRaw" class="p-6">
-        <div class="bg-gray-950 border border-emerald-800 shadow-2xl">
+        <div class="bg-gray-950 border border-emerald-800 shadow-2xl p-2">
           <section class="p-6 mx-auto">
-            <div class="text-emerald-50 text-3xl pt-4 pb-8 font-bold">
+            <div
+              class="text-emerald-50 text-3xl pt-4 pb-8 font-bold text-center"
+            >
               <a
                 :href="spotifyPlaylistRaw.external_urls.spotify"
                 target="_blank"
                 rel="noopener"
                 class="text-4xl mr-6"
               >
-                {{ spotifyPlaylistRaw.name }}
+                <span class="text-emerald-200">
+                  {{ spotifyPlaylistRaw.name }}
+                </span>
               </a>
 
               <a
@@ -224,7 +203,10 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                 rel="noopener"
                 class="text-sm uppercase font-normal"
               >
-                Created by {{ spotifyPlaylistRaw.owner.display_name }}
+                By
+                <span class="text-emerald-200">
+                  {{ spotifyPlaylistRaw.owner.display_name }}
+                </span>
               </a>
             </div>
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -284,23 +266,52 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                     {{ failedTracks.length }}
                   </h2>
 
-                  <p class="leading-none text-gray-300">Failed to scrape</p>
+                  <p class="leading-none text-gray-300">
+                    Failed to scrape (timeout)
+                  </p>
                 </div>
               </div>
             </div>
 
-            <!-- table -->
+            <!-- preview -->
+            <section
+              v-if="spotifyPlaylistRaw && embedURL.length > 0"
+              class="w-full p-6"
+            >
+              <iframe
+                class="playlist-iframe w-full aspect-video"
+                :src="embedURL"
+                title="YouTube video player"
+                frameborder="0"
+                allowfullscreen
+                allow="autoplay"
+              />
+              <div class="px-8 flex flex-row justify-center">
+                <a
+                  v-if="finalYTShareURL"
+                  :href="finalYTShareURL"
+                  target="_blank"
+                  rel="noopener"
+                  class="btn btn-danger my-8 font-bold rounded-none"
+                >
+                  <i class="fab fa-youtube pr-2" />
+                  Open Playlist on YouTube
+                  <i class="fas fa-link pl-2" />
+                </a>
+              </div>
+            </section>
 
+            <!-- table -->
             <div class="overflow-x-auto">
               <div
                 class="w-full flex items-center justify-center font-sans overflow-hidden"
               >
                 <div class="w-full">
-                  <div
-                    class="bg-gray-700 text-emerald-50 shadow-md rounded my-6"
-                  >
-                    <table class="min-w-max w-full table-auto shadow-xl">
-                      <thead>
+                  <div class="text-emerald-50 shadow-md rounded my-6 px-8">
+                    <table
+                      class="min-w-max w-full table-auto shadow-xl bg-gray-700 rounded"
+                    >
+                      <thead class="rounded-t">
                         <tr
                           class="bg-gray-900 text-emerald-50 uppercase text-sm leading-normal select-none"
                         >
@@ -328,9 +339,8 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                             <div class="flex items-center">
                               <img
                                 v-if="track.track.album.images"
-                                class="rounded shadow-md select-none"
+                                class="rounded shadow-md select-none w-14"
                                 :src="track.track.album.images[0].url"
-                                width="100"
                               />
                             </div>
                           </td>
@@ -338,7 +348,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                           <td class="py-3 px-6 text-left whitespace-nowrap">
                             <div class="flex items-center">
                               <span
-                                class="font-medium overflow-hidden truncate w-64 text-lg"
+                                class="overflow-hidden truncate w-64 text-base"
                               >
                                 {{ track.track.name }}
                               </span>
@@ -349,7 +359,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                             <div class="flex items-center">
                               <span
                                 v-if="track.track.artists"
-                                class="overflow-hidden truncate w-32 text-lg"
+                                class="overflow-hidden truncate w-32 text-base"
                               >
                                 {{ track.track.artists[0].name }}
                               </span>
@@ -361,7 +371,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                           >
                             <div class="flex items-center">
                               <div
-                                class="font-medium overflow-hidden truncate w-56 text-lg"
+                                class="overflow-hidden truncate w-56 text-base"
                               >
                                 {{ track.track.album.name }}
                               </div>
@@ -375,7 +385,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                               class="bg-emerald-400 text-gray-900 py-2 px-4 rounded font-bold"
                             >
                               <i class="fab fa-spotify pr-2"></i>
-                              Listen on Spotify
+                              Spotify
                             </a>
                           </td>
 
@@ -397,14 +407,15 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                               class="bg-red-500 rounded text-white py-2 px-4 font-bold"
                             >
                               <i class="fab fa-youtube pr-2"></i>
-                              Watch on YouTube
+                              YouTube
                             </a>
 
                             <p
                               v-else
                               class="text-emerald-300 text-lg w-30 py-1 px-3"
                             >
-                              <i class="fas fa-compact-disc fa-spin"></i>
+                              <i class="fas fa-compact-disc fa-spin mr-2" />
+                              Scraping...
                             </p>
                           </td>
                         </tr>

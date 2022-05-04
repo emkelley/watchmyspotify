@@ -3,16 +3,17 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     fontFamily: {
-      sans: ["Nunito", "sans-serif"],
+      sans: ["Space Grotesk", "sans-serif"],
     },
     extend: {
       colors: {
         gray: {
           950: "#0C121D",
+          975: "#030508",
         },
         primary: {
           light: "#D1FAE5", // For lighter primary color
-          DEFAULT: "#27A074", // Normal primary color
+          DEFAULT: "#047857", // Normal primary color
           dark: "#14533C", // Used for hover, active, etc.
         },
       },
