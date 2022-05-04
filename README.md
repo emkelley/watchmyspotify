@@ -1,8 +1,5 @@
 # Watch My Spotify
 
-
-[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/emkelley/watchmyspotify)
-
 A simple app that converts your public spotify playlists to a YouTube playlist.
 
 Built with Vue 3, Typescript, Spotify API, Puppeteer, Netlify Functions and some good 'ole undocumented YouTube endpoints.
