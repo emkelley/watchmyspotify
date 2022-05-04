@@ -85,12 +85,12 @@ const getFinalURL = async () => {
   const ytIDs = finalTracks.value
     .map((item) => item.youtube)
     .filter((item) => item);
-  console.log(ytIDs);
+
   const res = await axios.get(`/.netlify/functions/final?ids=${ytIDs}`);
-  finalYTShareURL.value = `https://www.youtube.com/watch_videos?video_ids=${ytIDs}`;
-  console.log(res.data);
-  if (res.data.startsWith("TL"))
+  if (res.data.startsWith("TL")) {
+    finalYTShareURL.value = `https://www.youtube.com/playlist?list=${res.data}`;
     embedURL.value = `https://www.youtube.com/embed/videoseries?list=${res.data}&autoplay=1`;
+  }
   loading.value = false;
 };
 
@@ -115,7 +115,34 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
     />
 
     <div class="container mx-auto px-4">
-      <div class="flex flex-row">
+      <div class="flex flex-col">
+        <section
+          v-if="spotifyPlaylistRaw && embedURL.length > 0"
+          class="w-full p-6"
+        >
+          <div class="bg-gray-950 border border-emerald-800 shadow-2xl">
+            <iframe
+              class="playlist-iframe w-full aspect-video"
+              :src="embedURL"
+              title="YouTube video player"
+              frameborder="0"
+              allowfullscreen
+              allow="autoplay"
+            />
+            <div class="px-8">
+              <a
+                v-if="finalYTShareURL"
+                :href="finalYTShareURL"
+                target="_blank"
+                rel="noopener"
+                class="btn btn-danger btn-lg font-gray-400 my-8 font-bold w-full"
+              >
+                <i class="fab fa-youtube pr-2" />
+                Open on YouTube
+              </a>
+            </div>
+          </div>
+        </section>
         <div class="p-6">
           <div class="bg-gray-950 border border-emerald-800 shadow-2xl p-6">
             <div class="my-auto">
@@ -151,16 +178,12 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                   embed opens, try opening the playlist with the button below.
                 </p>
 
-                <p class="text-emerald-50 py-1">
-                  4) If songs time out when scraping, run the converter again on
-                  the playlist to pick up those failed songs.
-                </p>
-
                 <p class="text-emerald-50 py-1 mb-4">
-                  5) Lastly, have some patience. For each song the backend is
+                  4) Lastly, have some patience. For each song the backend is
                   opening and searching YouTube and extracting video IDs. This
                   can take a while - up to 10 seconds per song before timing
-                  out.
+                  out. If songs time out when scraping, run the converter again
+                  on the playlist to pick up those failed songs.
                 </p>
               </div>
 
@@ -177,36 +200,9 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                 </span>
                 Convert Playlist
               </button>
-
-              <a
-                v-if="finalYTShareURL"
-                :href="finalYTShareURL"
-                target="_blank"
-                rel="noopener"
-                class="btn btn-light-primary btn-lg font-gray-400 mt-20 font-bold w-full"
-              >
-                <i class="fab fa-youtube pr-2" />
-                Open on YouTube
-              </a>
             </div>
           </div>
         </div>
-
-        <section
-          v-if="spotifyPlaylistRaw && embedURL.length > 0"
-          class="w-full p-6"
-        >
-          <div class="bg-gray-950 border border-emerald-800 shadow-2xl">
-            <iframe
-              class="playlist-iframe w-full aspect-video"
-              :src="embedURL"
-              title="YouTube video player"
-              frameborder="0"
-              allowfullscreen
-              autoplay="true"
-            />
-          </div>
-        </section>
       </div>
 
       <section v-if="spotifyPlaylistRaw" class="p-6">
