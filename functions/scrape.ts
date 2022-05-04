@@ -15,8 +15,8 @@ const scrapeResults = async (query: string) => {
   const fullQuery = ytQueryBase + query.replace(" ", "+") + " official video";
 
   const browser = await chromium.puppeteer.launch({
-    args: await chromium.args,
-    executablePath: (await chromium.executablePath) || process.env.CHROME_EXE,
+    args: chromium.args,
+    executablePath: process.env.CHROME_EXE || (await chromium.executablePath),
     headless: true,
   });
 
