@@ -7,6 +7,7 @@ import Hero from "@/components/Hero.vue";
 import axios from "axios";
 import { ref } from "vue";
 import { checkCache, cacheResults } from "@/firebase";
+import TheFooter from "./components/TheFooter.vue";
 
 let playlistURL = ref<string>(
   "https://open.spotify.com/playlist/2e5zLODjQB04wovyMU6ZQa"
@@ -415,4 +416,5 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
       </section>
     </div>
   </main>
+  <TheFooter />
 </template>
