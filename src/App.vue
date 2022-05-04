@@ -9,7 +9,7 @@ import { ref } from "vue";
 import { checkCache, cacheResults } from "@/firebase";
 
 let playlistURL = ref<string>(
-  "https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1"
+  "https://open.spotify.com/playlist/37i9dQZF1DX4dyzvuaRJ0n?si=98bd60ffa8404e24"
 );
 let tracksAnalyzed = ref<number>(0);
 let embedURL = ref<string>(
@@ -134,15 +134,15 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                   Converter Limitations:
                 </h3>
 
-                <p class="text-gray-200 py-1">
+                <p class="text-emerald-50 py-1">
                   1) The Spotify playlist must be public
                 </p>
 
-                <p class="text-gray-200 py-1">
+                <p class="text-emerald-50 py-1">
                   2) Playlists are limited to 49 songs (API limits)
                 </p>
 
-                <p class="text-gray-200 py-1 mb-4">
+                <p class="text-emerald-50 py-1 mb-4">
                   3) If you get "This video is unavailable." errors when the
                   embed opens, try opening the playlist with the button below.
                 </p>
@@ -196,19 +196,38 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
       <section v-if="spotifyPlaylistRaw" class="p-6">
         <div class="bg-gray-950 border border-emerald-800 shadow-2xl">
           <section class="p-6 mx-auto">
+            <div class="text-emerald-50 text-3xl pt-4 pb-8 font-bold">
+              <a
+                :href="spotifyPlaylistRaw.external_urls.spotify"
+                target="_blank"
+                rel="noopener"
+                class="text-4xl mr-6"
+              >
+                {{ spotifyPlaylistRaw.name }}
+              </a>
+
+              <a
+                :href="spotifyPlaylistRaw.owner.external_urls.spotify"
+                target="_blank"
+                rel="noopener"
+                class="text-sm uppercase font-normal"
+              >
+                Created by {{ spotifyPlaylistRaw.owner.display_name }}
+              </a>
+            </div>
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               <div
                 class="flex-row items-center p-5 bg-gray-900 border-emerald-800 shadow-xl card"
               >
                 <div
-                  class="flex items-center justify-center w-14 h-14 text-white bg-blue-600 rounded"
+                  class="flex items-center justify-center w-14 h-14 text-emerald-50 bg-blue-600 rounded"
                 >
                   <i class="fas fa-music text-2xl"></i>
                 </div>
 
                 <div class="ml-3">
                   <h2
-                    class="mb-2 text-3xl font-bold leading-none text-gray-100 truncate"
+                    class="mb-2 text-3xl font-bold leading-none text-emerald-50 truncate"
                   >
                     {{ spotifyPlaylistTracks.length }}
                   </h2>
@@ -228,7 +247,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
 
                 <div class="ml-3">
                   <h2
-                    class="mb-1 text-3xl font-bold leading-none text-gray-100 truncate"
+                    class="mb-1 text-3xl font-bold leading-none text-emerald-50 truncate"
                   >
                     {{ finalTracks.length }}
                   </h2>
@@ -248,7 +267,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
 
                 <div class="ml-3">
                   <h2
-                    class="mb-1 font-bold leading-none text-gray-100 truncate text-3xl"
+                    class="mb-1 font-bold leading-none text-emerald-50 truncate text-3xl"
                   >
                     {{ failedTracks.length }}
                   </h2>
@@ -265,11 +284,13 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                 class="w-full flex items-center justify-center font-sans overflow-hidden"
               >
                 <div class="w-full">
-                  <div class="bg-gray-700 text-white shadow-md rounded my-6">
+                  <div
+                    class="bg-gray-700 text-emerald-50 shadow-md rounded my-6"
+                  >
                     <table class="min-w-max w-full table-auto shadow-xl">
                       <thead>
                         <tr
-                          class="bg-gray-900 text-gray-100 uppercase text-sm leading-normal select-none"
+                          class="bg-gray-900 text-emerald-50 uppercase text-sm leading-normal select-none"
                         >
                           <th class="py-3 px-6 text-left">Cover</th>
 
@@ -285,7 +306,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                         </tr>
                       </thead>
 
-                      <tbody class="text-white text-sm font-light">
+                      <tbody class="text-emerald-50 text-sm font-light">
                         <tr
                           v-for="(track, index) in spotifyPlaylistTracks"
                           :key="index"

@@ -10,7 +10,7 @@ exports.handler = (event, context, callback) => {
       },
       (response) => {
         const plstID = response.responseUrl.split("=")[2];
-        console.log(response.responseUrl);
+        console.log(`Found playlist ID: ${plstID}`);
 
         callback(null, {
           statusCode: 200,

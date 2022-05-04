@@ -59,7 +59,7 @@ const scrapeResults = async (query: string) => {
   });
 
   const page = await browser.newPage();
-  await page.goto(fullQuery);
+  await page.goto(fullQuery, { waitUntil: "networkidle2" });
   await page.setRequestInterception(true);
   // If the page makes a  request to a resource type of image or stylesheet then abort that request
   page.on("request", (req) => {
