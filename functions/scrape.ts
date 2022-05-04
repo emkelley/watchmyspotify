@@ -1,8 +1,6 @@
 import { Handler } from "@netlify/functions";
 import chromium from "chrome-aws-lambda";
-import puppeteer from "puppeteer-core";
 import * as cheerio from "cheerio";
-const minimal_args = ["--no-sandbox", "--no-zygote"];
 const handler: Handler = async (event) => {
   const { query } = event.queryStringParameters;
   const ID = await scrapeResults(query);
@@ -16,9 +14,9 @@ const scrapeResults = async (query: string) => {
   const ytQueryBase = "https://www.youtube.com/results?search_query=";
   const fullQuery = ytQueryBase + query.replace(" ", "+") + " official video";
 
-  const browser = await puppeteer.launch({
-    args: minimal_args,
-    executablePath: process.env.CHROME_EXE || (await chromium.executablePath),
+  const browser = await chromium.puppeteer.launch({
+    args: await chromium.args,
+    executablePath: (await chromium.executablePath) || process.env.CHROME_EXE,
     headless: true,
   });
 
