@@ -193,12 +193,12 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                 @click="getPlaylistTracks"
               >
                 <span v-if="loading" class="mr-2">
-                  <i class="fa-solid fa-rocket-launch" />
+                  <i class="fa-solid fa-cog fa-spin" />
                 </span>
                 <span v-else class="mr-2">
                   <i class="fa-solid fa-rocket" />
                 </span>
-                Convert Playlist
+                {{ loading ? "Processing..." : "Convert Playlist" }}
               </button>
             </div>
           </div>
