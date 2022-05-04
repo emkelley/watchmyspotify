@@ -86,7 +86,7 @@ const getFinalURL = async () => {
   finalYTShareURL.value = `https://www.youtube.com/watch_videos?video_ids=${ytIDs}`;
   console.log(res.data);
   if (res.data.startsWith("TL"))
-    embedURL.value = `https://www.youtube.com/embed/videoseries?list=${res.data}&autoplay=1`;
+    embedURL.value = `//www.youtube.com/embed/videoseries?list=${res.data}&autoplay=1`;
   loading.value = false;
 };
 
@@ -110,98 +110,95 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
       subtext="Use this tool to convert a Spotify playlist to a YouTube playlist. Playlist conversions are currently limited to 50 tracks."
     />
 
-    <div class="container mx-auto">
-      <section class="px-4 grid grid-cols-3 gap-4 pt-4 lg:w-max">
-        <div
-          class="bg-gray-800 p-6 col-span-1 flex-none shadow-2xl border border-green-800"
-        >
-          <div class="my-auto">
-            <h3 class="text-green-400 mb-4 uppercase font-bold">
-              Spotify Playlist URL
-            </h3>
-
-            <input
-              type="text"
-              class="py-3 px-5 bg-gray-900 w-full text-gray-200 border border-green-800 text-sm"
-              placeholder="Spotify playlist URL"
-              v-model="playlistURL"
-              @keydown.enter="getPlaylistTracks()"
-            />
-
-            <hr class="mt-4 mb-6 border-green-600" />
-
-            <div class="">
-              <h3 class="text-green-400 mb-2 uppercase font-medium">
-                Converter Limitations:
+    <div class="container mx-auto px-4">
+      <div class="flex flex-row">
+        <div class="p-6">
+          <div class="bg-gray-950 border border-emerald-800 shadow-2xl p-6">
+            <div class="my-auto">
+              <h3 class="text-emerald-400 mb-4 uppercase font-bold">
+                Spotify Playlist URL
               </h3>
 
-              <p class="text-gray-200 py-1">
-                1) The Spotify playlist must be public
-              </p>
+              <input
+                type="text"
+                class="py-3 px-5 bg-gray-900 w-full text-gray-200 border border-emerald-800 text-sm"
+                placeholder="Spotify playlist URL"
+                v-model="playlistURL"
+                @keydown.enter="getPlaylistTracks()"
+              />
 
-              <p class="text-gray-200 py-1">
-                2) Playlists are limited to 50 songs
-              </p>
+              <hr class="mt-4 mb-6 border-emerald-600" />
 
-              <p class="text-gray-200 py-1 mb-4">
-                3) If you get "This video is unavailable." errors when the embed
-                opens,<br />
-                try opening the playlist with the button below.
-              </p>
+              <div class="">
+                <h3 class="text-emerald-400 mb-2 uppercase font-medium">
+                  Converter Limitations:
+                </h3>
+
+                <p class="text-gray-200 py-1">
+                  1) The Spotify playlist must be public
+                </p>
+
+                <p class="text-gray-200 py-1">
+                  2) Playlists are limited to 49 songs (API limits)
+                </p>
+
+                <p class="text-gray-200 py-1 mb-4">
+                  3) If you get "This video is unavailable." errors when the
+                  embed opens, try opening the playlist with the button below.
+                </p>
+              </div>
+
+              <button
+                class="btn btn-primary btn-lg font-gray-400 mt-4 font-bold disabled:opacity-50 w-full"
+                :disabled="loading"
+                @click="getPlaylistTracks"
+              >
+                <span v-if="loading" class="mr-2">
+                  <i class="fa-solid fa-rocket-launch" />
+                </span>
+                <span v-else class="mr-2">
+                  <i class="fa-solid fa-rocket" />
+                </span>
+                Convert Playlist
+              </button>
+
+              <a
+                v-if="finalYTShareURL"
+                :href="finalYTShareURL"
+                target="_blank"
+                rel="noopener"
+                class="btn btn-light-primary btn-lg font-gray-400 mt-20 font-bold w-full"
+              >
+                <i class="fab fa-youtube pr-2" />
+                Open on YouTube
+              </a>
             </div>
-
-            <button
-              class="btn btn-primary btn-lg font-gray-400 mt-4 font-bold disabled:opacity-50 w-full"
-              :disabled="loading"
-              @click="getPlaylistTracks"
-            >
-              <span v-if="loading" class="mr-2">
-                <i class="fa-solid fa-rocket-launch" />
-              </span>
-              <span v-else class="mr-2">
-                <i class="fa-solid fa-rocket" />
-              </span>
-              Convert Playlist
-            </button>
-
-            <a
-              v-if="finalYTShareURL"
-              :href="finalYTShareURL"
-              target="_blank"
-              rel="noopener"
-              class="btn btn-light-primary btn-lg font-gray-400 mt-20 font-bold w-full"
-            >
-              <i class="fab fa-youtube pr-2" />
-              Open on YouTube
-            </a>
           </div>
         </div>
 
         <section
           v-if="spotifyPlaylistRaw && embedURL.length > 0"
-          class="bg-gray-950 col-span-2 border border-green-800 shadow-2xl"
+          class="w-full p-6"
         >
-          <iframe
-            v-if="embedURL.length > 1"
-            class="playlist-iframe w-full mx-auto"
-            style="aspect-ratio: 16 / 9"
-            :src="embedURL"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            autoplay="true"
-          />
+          <div class="bg-gray-950 border border-emerald-800 shadow-2xl">
+            <iframe
+              class="playlist-iframe w-full aspect-video"
+              :src="embedURL"
+              title="YouTube video player"
+              frameborder="0"
+              allowfullscreen
+              autoplay="true"
+            />
+          </div>
         </section>
+      </div>
 
-        <section
-          v-if="spotifyPlaylistRaw"
-          class="bg-gray-800 p-6 pb-9 col-span-3 border border-green-800 shadow-2xl"
-        >
-          <section class="p-4 mx-auto">
+      <section v-if="spotifyPlaylistRaw" class="p-6">
+        <div class="bg-gray-950 border border-emerald-800 shadow-2xl">
+          <section class="p-6 mx-auto">
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               <div
-                class="flex-row items-center p-5 bg-gray-900 border-green-800 shadow-xl card"
+                class="flex-row items-center p-5 bg-gray-900 border-emerald-800 shadow-xl card"
               >
                 <div
                   class="flex items-center justify-center w-14 h-14 text-white bg-blue-600 rounded"
@@ -221,10 +218,10 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
               </div>
 
               <div
-                class="flex-row items-center p-5 card bg-gray-900 border-green-800 shadow-xl"
+                class="flex-row items-center p-5 card bg-gray-900 border-emerald-800 shadow-xl"
               >
                 <div
-                  class="flex items-center justify-center w-14 h-14 text-gray-200 bg-green-600 rounded"
+                  class="flex items-center justify-center w-14 h-14 text-gray-200 bg-emerald-600 rounded"
                 >
                   <i class="fas fa-tv-music text-2xl"></i>
                 </div>
@@ -241,7 +238,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
               </div>
 
               <div
-                class="flex-row items-center p-5 card bg-gray-900 border-green-800 shadow-xl"
+                class="flex-row items-center p-5 card bg-gray-900 border-emerald-800 shadow-xl"
               >
                 <div
                   class="flex items-center justify-center w-14 h-14 text-gray-200 bg-red-600 rounded"
@@ -342,7 +339,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                             <a
                               :href="track.track.uri"
                               target="_blank"
-                              class="bg-green-400 text-gray-900 py-2 px-4 rounded font-bold"
+                              class="bg-emerald-400 text-gray-900 py-2 px-4 rounded font-bold"
                             >
                               <i class="fab fa-spotify pr-2"></i>
                               Listen on Spotify
@@ -372,7 +369,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
 
                             <p
                               v-else
-                              class="text-green-300 text-lg w-30 py-1 px-3"
+                              class="text-emerald-300 text-lg w-30 py-1 px-3"
                             >
                               <i class="fas fa-compact-disc fa-spin"></i>
                             </p>
@@ -385,7 +382,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
               </div>
             </div>
           </section>
-        </section>
+        </div>
       </section>
     </div>
   </main>
