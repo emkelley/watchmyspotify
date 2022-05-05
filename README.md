@@ -10,7 +10,7 @@ Enter a **Public** Spotify playlist URL in the input box and hit the big green b
 Why only 50? I use an undocumented endpoint that generates playlists from an array of video IDs with a hard cap at 50 videos.
 
 
-![image](https://user-images.githubusercontent.com/11874169/166742004-1e787e9e-b7df-401c-a766-c86843b6665d.png)
+![image](https://user-images.githubusercontent.com/11874169/166848258-43f2565c-18f1-4361-9145-8ae3a6c59b67.png)
 
 
 ### Running Locally
