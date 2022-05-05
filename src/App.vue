@@ -169,7 +169,7 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
 
                 <p class="text-emerald-50 py-1">
                   - Have some patience; For each song, the backend is opening a
-                  chrome instance and searching YouTube and extracting video
+                  chrome instance, searching YouTube, and then extracting video
                   IDs. This can take a while - up to 10 seconds per song before
                   timing out.
                 </p>
