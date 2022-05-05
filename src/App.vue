@@ -21,6 +21,7 @@ let spotifyPlaylistRaw = ref<SpotifyPlaylist>();
 let spotifyPlaylistTracks = ref<PlaylistTrack[]>([]);
 let finalTracks = ref<TRACK_META[]>([]);
 let failedTracks = ref<TRACK_META[]>([]);
+
 const getPlaylistTracks = async (): Promise<void> => {
   reset();
   loading.value = true;
@@ -36,7 +37,7 @@ const getPlaylistTracks = async (): Promise<void> => {
   analyzeTracks();
 };
 
-const analyzeTracks = async () => {
+const analyzeTracks = async (): Promise<void> => {
   for (const item of spotifyPlaylistTracks.value) {
     tracksAnalyzed.value++;
     let TRACK: TRACK_META = {
@@ -52,12 +53,10 @@ const analyzeTracks = async () => {
     const cacheHit: TRACK_META | null = await checkCache(TRACK);
     if (cacheHit) finalTracks.value.push(cacheHit);
     else {
-      const scrapedID: string = await searchYouTubePuppeteer(TRACK);
-      if (scrapedID.length == 0) failedTracks.value.push(TRACK);
-      else {
-        TRACK.youtube = scrapedID;
-        finalTracks.value.push(TRACK);
-      }
+      const scrapedID: string | null = await searchYouTubePuppeteer(TRACK);
+      if (!scrapedID) return;
+      TRACK.youtube = scrapedID;
+      finalTracks.value.push(TRACK);
     }
 
     if (spotifyPlaylistTracks.value.length === finalTracks.value.length) {
@@ -66,16 +65,18 @@ const analyzeTracks = async () => {
   }
 };
 
-const searchYouTubePuppeteer = async (TRACK: TRACK_META) => {
+const searchYouTubePuppeteer = async (
+  TRACK: TRACK_META
+): Promise<string | null> => {
   const query = `${TRACK.artist} - ${TRACK.name}`.replace(" ", "+");
   const { data } = await axios.get(`/.netlify/functions/scrape?query=${query}`);
   TRACK.youtube = data;
   if (data.length > 0) cacheResults(TRACK);
   else failedTracks.value.push(TRACK);
-  return data;
+  return data.length > 0 ? data : null;
 };
 
-const getFinalURL = async () => {
+const getFinalURL = async (): Promise<void> => {
   const ytIDs = finalTracks.value
     .map((item) => item.youtube)
     .filter((item) => item);
@@ -88,14 +89,14 @@ const getFinalURL = async () => {
   loading.value = false;
 };
 
-const reset = () => {
+const reset = (): void => {
   spotifyPlaylistTracks.value.length = 0;
   finalTracks.value.length = 0;
   tracksAnalyzed.value = 0;
   embedURL.value = "";
 };
 
-const makeYouTubeURLWithID = (spotifyURL: string) => {
+const makeYouTubeURLWithID = (spotifyURL: string): string => {
   const result = finalTracks.value.find((item) => item.spotify === spotifyURL);
   return `https://www.youtube.com/watch?v=${result!.youtube}`;
 };
