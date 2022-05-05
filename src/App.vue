@@ -51,42 +51,65 @@ const analyzeTracks = async (): Promise<void> => {
     };
 
     const cacheHit: TRACK_META | null = await checkCache(TRACK);
-    if (cacheHit) finalTracks.value.push(cacheHit);
-    else {
-      const scrapedID: string | null = await searchYouTubePuppeteer(TRACK);
-      if (!scrapedID) return;
-      TRACK.youtube = scrapedID;
-      finalTracks.value.push(TRACK);
+    if (cacheHit) {
+      finalTracks.value.push(cacheHit);
+    } else {
+      const finalTrack: TRACK_META | null = await scrapeTrack(TRACK);
+      if (finalTrack) finalTracks.value.push(finalTrack);
     }
-
+    // only get the final url if all tracks have videos
     if (spotifyPlaylistTracks.value.length === finalTracks.value.length) {
       getFinalURL();
     }
   }
 };
 
-const searchYouTubePuppeteer = async (
-  TRACK: TRACK_META
-): Promise<string | null> => {
+const scrapeTrack = async (TRACK: TRACK_META): Promise<TRACK_META | null> => {
+  const endpoint = "/.netlify/functions/scrape?query=";
   const query = `${TRACK.artist} - ${TRACK.name}`.replace(" ", "+");
-  const { data } = await axios.get(`/.netlify/functions/scrape?query=${query}`);
-  TRACK.youtube = data;
-  if (data.length > 0) cacheResults(TRACK);
-  else failedTracks.value.push(TRACK);
-  return data.length > 0 ? data : null;
+  return axios
+    .get(`${endpoint}${query}`)
+    .then((res) => {
+      if (res.data.length == 0) throw new Error();
+      TRACK.youtube = res.data;
+      cacheResults(TRACK);
+      return TRACK;
+    })
+    .catch(() => {
+      failedTracks.value.push(TRACK);
+      return null;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const getFinalURL = async (): Promise<void> => {
-  const ytIDs = finalTracks.value
-    .map((item) => item.youtube)
-    .filter((item) => item);
+  const ytIDs = finalTracks.value.map((item) => item.youtube);
+  axios
+    .get(`/.netlify/functions/final?ids=${ytIDs}`)
+    .then((data) => {
+      if (data.data.startsWith("TL")) {
+        finalYTShareURL.value = `https://www.youtube.com/playlist?list=${data.data}`;
+        embedURL.value = `https://www.youtube.com/embed/videoseries?list=${data.data}&autoplay=1`;
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
 
-  const res = await axios.get(`/.netlify/functions/final?ids=${ytIDs}`);
-  if (res.data.startsWith("TL")) {
-    finalYTShareURL.value = `https://www.youtube.com/playlist?list=${res.data}`;
-    embedURL.value = `https://www.youtube.com/embed/videoseries?list=${res.data}&autoplay=1`;
-  }
-  loading.value = false;
+const makeYouTubeURLWithID = (spotifyURL: string): string => {
+  const result = finalTracks.value.find((item) => item.spotify === spotifyURL);
+  return `https://www.youtube.com/watch?v=${result!.youtube}`;
+};
+
+const hasTimedOut = (spotifyURL: string): string | null => {
+  const result = failedTracks.value.find((item) => item.spotify === spotifyURL);
+  return result ? "Timed out" : null;
 };
 
 const reset = (): void => {
@@ -94,11 +117,6 @@ const reset = (): void => {
   finalTracks.value.length = 0;
   tracksAnalyzed.value = 0;
   embedURL.value = "";
-};
-
-const makeYouTubeURLWithID = (spotifyURL: string): string => {
-  const result = finalTracks.value.find((item) => item.spotify === spotifyURL);
-  return `https://www.youtube.com/watch?v=${result!.youtube}`;
 };
 </script>
 
@@ -455,6 +473,15 @@ const makeYouTubeURLWithID = (spotifyURL: string): string => {
                               YouTube
                             </a>
 
+                            <p
+                              v-else-if="
+                                hasTimedOut(track.track.external_urls.spotify)
+                              "
+                              class="text-emerald-300 text-lg w-30 py-1 px-3"
+                            >
+                              <i class="fas fa-compact-disc fa-spin mr-2" />
+                              Failed to scrape
+                            </p>
                             <p
                               v-else
                               class="text-emerald-300 text-lg w-30 py-1 px-3"

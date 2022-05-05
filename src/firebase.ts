@@ -48,3 +48,19 @@ export const cacheResults = async (TRACK_META: TRACK_META): Promise<string> => {
   });
   return docRef.id;
 };
+// export const cacheResults = async (TRACK_META: TRACK_META): Promise<string> => {
+//   try {
+//     const docRef = await addDoc(cacheRef, {
+//       added: Date.now(),
+//       name: TRACK_META.name,
+//       artist: TRACK_META.artist,
+//       album: TRACK_META.album,
+//       image: TRACK_META.image,
+//       spotify: TRACK_META.spotify,
+//       youtube: TRACK_META.youtube,
+//     });
+//     return docRef.id;
+//   } catch (error) {
+//     return error as string;
+//   }
+// };
