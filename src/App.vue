@@ -167,12 +167,17 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
                   embed opens, try opening the playlist with the button below.
                 </p>
 
+                <p class="text-emerald-50 py-1">
+                  - Lastly, have some patience. For each song, the backend is
+                  opening a chrome instance and searching YouTube and extracting
+                  video IDs. This can take a while - up to 10 seconds per song
+                  before timing out.
+                </p>
+
                 <p class="text-emerald-50 py-1 mb-4">
-                  - Lastly, have some patience. For each song the backend is
-                  opening and searching YouTube and extracting video IDs. This
-                  can take a while - up to 10 seconds per song before timing
-                  out. If songs time out when scraping, run the converter again
-                  on the playlist to pick up those failed songs.
+                  - If songs get stuck and time out when scraping, run the
+                  conversion again on the playlist to pick up those failed
+                  songs.
                 </p>
               </div>
             </div>
