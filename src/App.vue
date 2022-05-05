@@ -104,13 +104,11 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
 <template>
   <main class="app bg-gray-900 min-h-screen pb-24">
     <section
-      class="px-4 py-10 border-b border-emerald-800 bg-gradient-to-br from-emerald-900 to-gray-950 text-center"
+      class="px-4 py-24 border-b border-emerald-800 bg-gradient-to-br from-emerald-900 to-gray-950 text-center"
     >
       <h1 class="text-4xl text-emerald-50 font-bold">Watch My Spotify</h1>
       <p class="text-emerald-50 max-w-2xl mx-auto mt-5">
         Use this tool to convert a Spotify playlist to a YouTube playlist.
-        <br />
-        Playlist conversions are currently limited to 49 tracks.
       </p>
     </section>
     <div class="container mx-auto px-4">
@@ -148,37 +146,78 @@ const makeYouTubeURLWithID = (spotifyURL: string) => {
               </div>
 
               <hr class="mt-4 mb-6 border-emerald-600" />
+              <div class="flex flex-row">
+                <div class="text-base tracking-wide p-4 w-full">
+                  <h3 class="text-emerald-400 mb-2 uppercase font-medium">
+                    How it works:
+                  </h3>
 
-              <div class="text-base tracking-wide">
-                <h3 class="text-emerald-400 mb-2 uppercase font-medium">
-                  Things to keep in mind:
-                </h3>
+                  <p class="text-emerald-50 py-2">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Find a <strong>Public</strong> Spotify playlist and copy the
+                    link to the playlist. You can find this in the share options
+                    for the playlist.
+                  </p>
+                  <p class="text-emerald-50 py-2">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Paste the link into the above field and click the Convert
+                    Playlist button.
+                  </p>
+                  <p class="text-emerald-50 py-2">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    The playlist will begin processing immediately. You can view
+                    the progress in the table below.
+                  </p>
+                  <p class="text-emerald-50 py-2">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Songs are cached between conversions. If a song is not
+                    found, the backend will try to scrape YouTube for it.
+                  </p>
+                  <p class="text-emerald-50 py-2">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Once all tracks have been processed and videos have been
+                    found, the playlist will automatically appear. Use the
+                    button below the embed to view the playlist on YouTube.
+                  </p>
+                </div>
+                <div class="text-base tracking-wide p-4 w-full">
+                  <h3 class="text-emerald-400 mb-2 uppercase font-medium">
+                    Bugs & Troubleshooting:
+                  </h3>
 
-                <p class="text-emerald-50 py-1">
-                  - The Spotify playlist must be public
-                </p>
+                  <p class="text-emerald-50 py-1">
+                    - The Spotify playlist must be public
+                  </p>
 
-                <p class="text-emerald-50 py-1">
-                  - Playlists are limited to 49 songs (API limits)
-                </p>
+                  <p class="text-emerald-50 py-1">
+                    - Playlists are limited to 49 songs (API limits)
+                  </p>
 
-                <p class="text-emerald-50 py-1">
-                  - If you get "This video is unavailable." errors when the
-                  embed opens, try opening the playlist with the button below.
-                </p>
+                  <p class="text-emerald-50 py-1">
+                    - If you get "This video is unavailable." errors when the
+                    embed opens, try opening the playlist with the button below.
+                  </p>
 
-                <p class="text-emerald-50 py-1">
-                  - Have some patience; For each song, the backend is opening a
-                  chrome instance, searching YouTube, and then extracting video
-                  IDs. This can take a while - up to 10 seconds per song before
-                  timing out.
-                </p>
+                  <p class="text-emerald-50 py-1">
+                    - If songs get stuck and time out when scraping, run the
+                    conversion again on the playlist to pick up those failed
+                    songs.
+                  </p>
 
-                <p class="text-emerald-50 py-1 mb-4">
-                  - Lastly, If songs get stuck and time out when scraping, run
-                  the conversion again on the playlist to pick up those failed
-                  songs.
-                </p>
+                  <p class="text-emerald-50 py-1 mb-4">
+                    - Have some patience; For each song, the backend is opening
+                    a chrome instance, searching YouTube, and then extracting
+                    video IDs. This can take a while - up to 10 seconds per song
+                    before timing out.
+                  </p>
+
+                  <p class="text-emerald-50 py-1">
+                    Lastly, if you're interested in the technical side of this
+                    project, you can read more about how I made it
+                    <a class="text-emerald-200" href="#">in this blog post</a>
+                    (coming soon).
+                  </p>
+                </div>
               </div>
             </div>
           </div>
