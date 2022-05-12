@@ -115,6 +115,7 @@ const hasTimedOut = (spotifyURL: string): string | null => {
 const reset = (): void => {
   spotifyPlaylistTracks.value.length = 0;
   finalTracks.value.length = 0;
+  failedTracks.value.length = 0;
   tracksAnalyzed.value = 0;
   embedURL.value = "";
 };
@@ -479,7 +480,7 @@ const reset = (): void => {
                               "
                               class="text-emerald-300 text-lg w-30 py-1 px-3"
                             >
-                              <i class="fas fa-compact-disc fa-spin mr-2" />
+                              <i class="fas fa-circle-x mr-2" />
                               Failed to scrape
                             </p>
                             <p
