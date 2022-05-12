@@ -12,10 +12,10 @@ const handler: Handler = async (event) => {
 
 const scrapeResults = async (query: string) => {
   const ytQueryBase = "https://www.youtube.com/results?search_query=";
-  const fullQuery = ytQueryBase + query.replace(" ", "+") + " official video";
+  const fullQuery = `${ytQueryBase}${query.replace(" ", "+")} official video`;
 
   const browser = await chromium.puppeteer.launch({
-    args: [...chromium.args, "--no-zygote", "--single-process"],
+    args: [...chromium.args, "--no-zygote"],
     executablePath: process.env.CHROME_EXE || (await chromium.executablePath),
     headless: true,
   });

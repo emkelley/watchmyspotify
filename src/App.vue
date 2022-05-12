@@ -478,10 +478,10 @@ const reset = (): void => {
                               v-else-if="
                                 hasTimedOut(track.track.external_urls.spotify)
                               "
-                              class="text-emerald-300 text-lg w-30 py-1 px-3"
+                              class="text-red-300 text-lg w-30 py-1 px-3"
                             >
                               <i class="fas fa-circle-x mr-2" />
-                              Failed to scrape
+                              Timed Out
                             </p>
                             <p
                               v-else
