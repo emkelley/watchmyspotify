@@ -440,10 +440,12 @@ const reset = (): void => {
                 }"
                 >
                   <div
-                    class="p-4 bg-black/70 backdrop-blur-md border-slate-600 shadow-lg text-white w-full flex flex-col rounded-b-md"
+                    class="p-4 bg-slate-900/70 backdrop-blur-md border-slate-600 shadow-lg text-white w-full flex flex-col rounded-b-md"
                   >
-                    <p class="mb-1 font-bold">{{ track.track.name }}</p>
-                    <p class="mb-2 font-light">
+                    <p class="mb-1 font-bold truncate">
+                      {{ track.track.name }}
+                    </p>
+                    <p class="mb-2 font-light truncate">
                       {{ track.track.artists![0].name }}
                     </p>
                     <div>
