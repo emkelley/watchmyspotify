@@ -9,7 +9,7 @@ import { SpotifyPlaylist } from "@/interfaces/SpotifyPlaylist";
 import { TRACK_META } from "@/interfaces/TRACK_META";
 
 let playlistURL = ref<string>(
-  "https://open.spotify.com/playlist/2e5zLODjQB04wovyMU6ZQa"
+  "https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1"
 );
 let tracksAnalyzed = ref<number>(0);
 let embedURL = ref<string>(
