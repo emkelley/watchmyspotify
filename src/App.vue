@@ -21,6 +21,7 @@ let spotifyPlaylistRaw = ref<SpotifyPlaylist>();
 let spotifyPlaylistTracks = ref<PlaylistTrack[]>([]);
 let finalTracks = ref<TRACK_META[]>([]);
 let failedTracks = ref<TRACK_META[]>([]);
+let view = ref<string>("grid");
 
 const getPlaylistTracks = async (): Promise<void> => {
   reset();
@@ -37,6 +38,7 @@ const getPlaylistTracks = async (): Promise<void> => {
   analyzeTracks();
 };
 
+// check if the playlist tracks have been cached before, if not scrape the video ID and cache it, and add track to finalTracks
 const analyzeTracks = async (): Promise<void> => {
   for (const item of spotifyPlaylistTracks.value) {
     tracksAnalyzed.value++;
@@ -139,7 +141,7 @@ const reset = (): void => {
               <h3
                 class="text-emerald-400 mb-4 uppercase font-bold text-xl tracking-wide"
               >
-                Spotify Playlist URL:
+                Spotify Public Playlist URL:
               </h3>
               <div class="flex flex-row items-center">
                 <input
@@ -168,75 +170,107 @@ const reset = (): void => {
               <hr class="mt-4 mb-6 border-emerald-600" />
               <div class="flex flex-row">
                 <div class="text-base tracking-wide p-4 w-full">
-                  <h3 class="text-emerald-400 mb-2 uppercase font-medium">
-                    How it works:
-                  </h3>
-
                   <p class="text-emerald-50 py-2">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    Find a <strong>Public</strong> Spotify playlist and copy the
-                    link to the playlist. You can find this in the share options
-                    for the playlist.
+                    <i class="fas fa-check-circle mr-2 text-emerald-500"></i>
+                    Copy a
+                    <strong class="text-emerald-200">Public</strong> Spotify
+                    playlist link from the
+                    <a
+                      rel="noopener"
+                      target="_blank"
+                      href="https://support.spotify.com/us/article/share-from-spotify/"
+                      >Share Menu</a
+                    >.
                   </p>
                   <p class="text-emerald-50 py-2">
-                    <i class="fas fa-check-circle mr-2"></i>
+                    <i class="fas fa-check-circle mr-2 text-emerald-500"></i>
                     Paste the link into the above field and click the Convert
-                    Playlist button.
+                    Playlist button to begin the conversion process.
                   </p>
                   <p class="text-emerald-50 py-2">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    The playlist will begin processing immediately. You can view
-                    the progress in the table below.
-                  </p>
-                  <p class="text-emerald-50 py-2">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    Songs are cached between conversions. If a song is not
-                    found, the backend will try to scrape YouTube for it.
-                  </p>
-                  <p class="text-emerald-50 py-2">
-                    <i class="fas fa-check-circle mr-2"></i>
+                    <i class="fas fa-check-circle mr-2 text-emerald-500"></i>
                     Once all tracks have been processed and videos have been
                     found, the playlist will automatically appear. Use the
                     button below the embed to view the playlist on YouTube.
                   </p>
                 </div>
                 <div class="text-base tracking-wide p-4 w-full">
-                  <h3 class="text-emerald-400 mb-2 uppercase font-medium">
-                    Bugs & Troubleshooting:
-                  </h3>
+                  <details>
+                    <summary
+                      class="text-emerald-400 mb-2 uppercase font-medium cursor-pointer"
+                    >
+                      Restrictions:
+                    </summary>
+                    <p class="text-emerald-50 py-1">
+                      - The Spotify playlist must be public
+                    </p>
 
-                  <p class="text-emerald-50 py-1">
-                    - The Spotify playlist must be public
-                  </p>
+                    <p class="text-emerald-50 py-1 mb-6">
+                      - Playlists are limited to 49 songs (API limits)
+                    </p>
+                  </details>
+                  <details>
+                    <summary
+                      class="text-emerald-400 mb-2 uppercase font-medium cursor-pointer"
+                    >
+                      Bugs & Troubleshooting:
+                    </summary>
 
-                  <p class="text-emerald-50 py-1">
-                    - Playlists are limited to 49 songs (API limits)
-                  </p>
+                    <details class="pl-4">
+                      <summary
+                        class="text-emerald-200 mb-2 text-sm cursor-pointer"
+                      >
+                        YouTube Embed - "This video is unavailable."
+                      </summary>
+                      <p class="text-emerald-50 py-1 pl-4">
+                        errors when the embed opens, try opening the playlist
+                        with the button below the embed.
+                      </p>
+                    </details>
 
-                  <p class="text-emerald-50 py-1">
-                    - If you get "This video is unavailable." errors when the
-                    embed opens, try opening the playlist with the button below.
-                  </p>
+                    <details class="pl-4">
+                      <summary
+                        class="text-emerald-200 mb-2 text-sm cursor-pointer"
+                      >
+                        Songs failed to scrape or timed out
+                      </summary>
+                      <p class="text-emerald-50 py-1 pl-4">
+                        If songs get stuck and time out when scraping, run the
+                        conversion again on the playlist to pick up those failed
+                        songs.
+                      </p>
+                    </details>
 
-                  <p class="text-emerald-50 py-1">
-                    - If songs get stuck and time out when scraping, run the
-                    conversion again on the playlist to pick up those failed
-                    songs.
-                  </p>
+                    <details class="pl-4">
+                      <summary
+                        class="text-emerald-200 mb-2 text-sm cursor-pointer"
+                      >
+                        The conversion is taking forever to complete
+                      </summary>
+                      <p class="text-emerald-50 py-1 pl-4">
+                        Have some patience; For each song, the backend is
+                        opening a chrome instance, searching YouTube, and then
+                        extracting video IDs. This can take a while - up to 10
+                        seconds per song before timing out.
+                      </p>
+                    </details>
 
-                  <p class="text-emerald-50 py-1 mb-4">
-                    - Have some patience; For each song, the backend is opening
-                    a chrome instance, searching YouTube, and then extracting
-                    video IDs. This can take a while - up to 10 seconds per song
-                    before timing out.
-                  </p>
-
-                  <p class="text-emerald-50 py-1">
-                    Lastly, if you're interested in the technical side of this
-                    project, you can read more about how I made it
-                    <a class="text-emerald-200" href="#">in this blog post</a>
-                    (coming soon).
-                  </p>
+                    <details class="pl-4">
+                      <summary
+                        class="text-emerald-200 mb-2 text-sm cursor-pointer"
+                      >
+                        How was this tool built?
+                      </summary>
+                      <p class="text-emerald-50 py-1 pl-4">
+                        If you're interested in the technical side of this
+                        project, you can read more about how I made it
+                        <a class="text-emerald-200" href="#"
+                          >in this blog post</a
+                        >
+                        (coming soon).
+                      </p>
+                    </details>
+                  </details>
                 </div>
               </div>
             </div>
@@ -248,7 +282,7 @@ const reset = (): void => {
         <div class="bg-gray-950 border border-emerald-800 shadow-2xl p-2">
           <section class="p-6 mx-auto">
             <div
-              class="text-emerald-50 text-3xl pt-4 pb-8 font-bold text-center"
+              class="flex flex-col text-emerald-50 text-3xl pt-4 pb-8 font-bold text-center"
             >
               <a
                 :href="spotifyPlaylistRaw.external_urls.spotify"
@@ -260,7 +294,9 @@ const reset = (): void => {
                   {{ spotifyPlaylistRaw.name }}
                 </span>
               </a>
-
+              <p v-if="spotifyPlaylistRaw.description" class="text-base my-4">
+                {{ spotifyPlaylistRaw.description }}
+              </p>
               <a
                 :href="spotifyPlaylistRaw.owner.external_urls.spotify"
                 target="_blank"
@@ -290,7 +326,7 @@ const reset = (): void => {
                     {{ spotifyPlaylistTracks.length }}
                   </h2>
 
-                  <p class="leading-none text-gray-300">Playlist tracks</p>
+                  <p class="leading-none text-gray-300">Playlist Tracks</p>
                 </div>
               </div>
 
@@ -310,7 +346,7 @@ const reset = (): void => {
                     {{ finalTracks.length }}
                   </h2>
 
-                  <p class="leading-none text-gray-300">Videos found</p>
+                  <p class="leading-none text-gray-300">Videos Found</p>
                 </div>
               </div>
 
@@ -364,138 +400,214 @@ const reset = (): void => {
                 </a>
               </div>
             </section>
-
-            <!-- table -->
-            <div class="overflow-x-auto">
-              <div
-                class="w-full flex items-center justify-center font-sans overflow-hidden"
+            <div class="flex flex-row items-center justify-between py-8">
+              <h2 class="text-emerald-400 font-bold text-2xl">
+                Playlist Tracks:
+              </h2>
+              <div class="text-sm">
+                <button
+                  class="text-emerald-50 py-1 px-3 rounded-l-full"
+                  :class="view == 'grid' ? 'bg-emerald-600' : 'bg-slate-700'"
+                  @click="view = 'grid'"
+                >
+                  <i class="fa-solid fa-grid"></i>
+                </button>
+                <button
+                  class="text-emerald-50 py-1 px-3 rounded-r-full"
+                  :class="view == 'table' ? 'bg-emerald-600' : 'bg-slate-700'"
+                  @click="view = 'table'"
+                >
+                  <i class="fa-solid fa-table"></i>
+                </button>
+              </div>
+            </div>
+            <section
+              v-if="view == 'grid'"
+              id="grid-view"
+              class="flex flex-row flex-wrap"
+            >
+              <article
+                v-for="(track, index) in spotifyPlaylistTracks"
+                :key="index"
+                class="2xl:w-1/5 xl:w-1/3 lg:w-1/2 w-full p-2 py-4 flex flex-row blur-50"
               >
-                <div class="w-full">
-                  <div class="text-emerald-50 shadow-md rounded my-6 px-8">
-                    <table
-                      class="min-w-max w-full table-auto shadow-xl bg-gray-700 rounded"
-                    >
-                      <thead class="rounded-t">
-                        <tr
-                          class="bg-gray-900 text-emerald-50 uppercase text-sm leading-normal select-none"
-                        >
-                          <th class="py-3 px-6 text-left">Cover</th>
+                <div
+                  class="aspect-square w-full h-full rounded-md flex items-end bg-cover"
+                  :style="{
+                  backgroundImage:
+                    'url(' + track.track.album.images![0].url + ')',
+                }"
+                >
+                  <div
+                    class="p-4 bg-black/70 backdrop-blur-md border-slate-600 shadow-lg text-white w-full flex flex-col rounded-b-md"
+                  >
+                    <p class="mb-1 font-bold">{{ track.track.name }}</p>
+                    <p class="mb-2 font-light">
+                      {{ track.track.artists![0].name }}
+                    </p>
+                    <div>
+                      <a
+                        :href="track.track.uri"
+                        target="_blank"
+                        class="bg-emerald-400 text-slate-300 hover:text-slate-900 py-1 px-2 rounded font-bold mr-2 bg-opacity-50 hover:bg-opacity-100 text-xs"
+                      >
+                        <i class="fab fa-spotify pr-2"></i>
+                        Spotify
+                      </a>
+                      <a
+                        v-if="
+                          finalTracks.some(
+                            (e) =>
+                              e.spotify === track.track.external_urls.spotify
+                          )
+                        "
+                        :href="
+                          makeYouTubeURLWithID(
+                            track.track.external_urls.spotify
+                          )
+                        "
+                        target="_blank"
+                        class="bg-red-500 rounded text-slate-300 hover:text-slate-50 py-1 px-2 font-bold bg-opacity-50 hover:bg-opacity-100 text-xs"
+                      >
+                        <i class="fab fa-youtube mr-2"></i> YouTube
+                      </a>
 
-                          <th class="py-3 px-6 text-left">Track Name</th>
-
-                          <th class="py-3 px-6 text-left">Artist</th>
-
-                          <th class="py-3 px-6 text-left">Album</th>
-
-                          <th class="py-3 px-6 text-center">Spotify</th>
-
-                          <th class="py-3 px-6 text-center">YouTube</th>
-                        </tr>
-                      </thead>
-
-                      <tbody class="text-emerald-50 text-sm font-light">
-                        <tr
-                          v-for="(track, index) in spotifyPlaylistTracks"
-                          :key="index"
-                          class="border border-gray-950 hover:bg-gray-800"
-                        >
-                          <td class="py-3 px-6 text-left whitespace-nowrap">
-                            <div class="flex items-center">
-                              <img
-                                v-if="track.track.album.images"
-                                class="rounded shadow-md select-none w-14"
-                                :src="track.track.album.images[0].url"
-                              />
-                            </div>
-                          </td>
-
-                          <td class="py-3 px-6 text-left whitespace-nowrap">
-                            <div class="flex items-center">
-                              <span
-                                class="overflow-hidden truncate w-64 text-base"
-                              >
-                                {{ track.track.name }}
-                              </span>
-                            </div>
-                          </td>
-
-                          <td class="py-3 px-6 text-left">
-                            <div class="flex items-center">
-                              <span
-                                v-if="track.track.artists"
-                                class="overflow-hidden truncate w-32 text-base"
-                              >
-                                {{ track.track.artists[0].name }}
-                              </span>
-                            </div>
-                          </td>
-
-                          <td
-                            class="py-3 px-6 text-left max-w-s whitespace-nowrap"
-                          >
-                            <div class="flex items-center">
-                              <div
-                                class="overflow-hidden truncate w-56 text-base"
-                              >
-                                {{ track.track.album.name }}
-                              </div>
-                            </div>
-                          </td>
-
-                          <td class="py-3 px-6 text-center">
-                            <a
-                              :href="track.track.uri"
-                              target="_blank"
-                              class="bg-emerald-400 text-gray-900 py-2 px-4 rounded font-bold"
-                            >
-                              <i class="fab fa-spotify pr-2"></i>
-                              Spotify
-                            </a>
-                          </td>
-
-                          <td class="py-3 px-6 text-center">
-                            <a
-                              v-if="
-                                finalTracks.some(
-                                  (e) =>
-                                    e.spotify ===
-                                    track.track.external_urls.spotify
-                                )
-                              "
-                              :href="
-                                makeYouTubeURLWithID(
-                                  track.track.external_urls.spotify
-                                )
-                              "
-                              target="_blank"
-                              class="bg-red-500 rounded text-white py-2 px-4 font-bold"
-                            >
-                              <i class="fab fa-youtube pr-2"></i>
-                              YouTube
-                            </a>
-
-                            <p
-                              v-else-if="
-                                hasTimedOut(track.track.external_urls.spotify)
-                              "
-                              class="text-red-300 text-lg w-30 py-1 px-3"
-                            >
-                              <i class="fas fa-circle-x mr-2" />
-                              Timed Out
-                            </p>
-                            <p
-                              v-else
-                              class="text-emerald-300 text-lg w-30 py-1 px-3"
-                            >
-                              <i class="fas fa-compact-disc fa-spin mr-2" />
-                              Scraping...
-                            </p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                      <p
+                        v-else-if="
+                          hasTimedOut(track.track.external_urls.spotify)
+                        "
+                        class="bg-transparent border border-red-500 rounded text-red-300 py-2 px-4 font-bold"
+                      >
+                        <i class="fas fa-circle-x mr-2" />
+                        Timed Out
+                      </p>
+                      <p
+                        v-else
+                        class="bg-transparent text-slate-300 hover:text-slate-900 py-1 px-2 rounded font-bold mr-2 bg-opacity-50 hover:bg-opacity-100 text-xs"
+                      >
+                        <i class="fas fa-compact-disc fa-spin mr-2" />
+                        Scraping...
+                      </p>
+                    </div>
                   </div>
                 </div>
+                <div></div>
+              </article>
+            </section>
+            <!-- table -->
+            <div v-if="view == 'table'" class="overflow-x-auto">
+              <div class="text-emerald-50 shadow-md rounded my-6">
+                <table class="w-full table-auto shadow-xl bg-gray-700 rounded">
+                  <thead class="rounded-t">
+                    <tr
+                      class="bg-gray-900 text-emerald-50 uppercase text-sm leading-normal select-none"
+                    >
+                      <th class="py-3 px-6 text-left">Cover</th>
+
+                      <th class="py-3 px-6 text-left">Track Name</th>
+
+                      <th class="py-3 px-6 text-left">Artist</th>
+
+                      <th class="py-3 px-6 text-left">Album</th>
+
+                      <th class="py-3 px-6 text-center">Spotify</th>
+
+                      <th class="py-3 px-6 text-center">YouTube</th>
+                    </tr>
+                  </thead>
+
+                  <tbody class="text-emerald-50 text-sm font-light">
+                    <tr
+                      v-for="(track, index) in spotifyPlaylistTracks"
+                      :key="index"
+                      class="border border-gray-950 hover:bg-gray-800"
+                    >
+                      <td class="py-3 px-6 text-left whitespace-nowrap">
+                        <div class="flex items-center">
+                          <img
+                            v-if="track.track.album.images"
+                            class="rounded shadow-md select-none w-14"
+                            :src="track.track.album.images[0].url"
+                          />
+                        </div>
+                      </td>
+
+                      <td class="py-3 px-6 text-left whitespace-nowrap">
+                        <div class="flex items-center">
+                          <span class="overflow-hidden truncate text-base">
+                            {{ track.track.name }}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td class="py-3 px-6 text-left">
+                        <div class="flex items-center">
+                          <span
+                            v-if="track.track.artists"
+                            class="overflow-hidden truncate text-base"
+                          >
+                            {{ track.track.artists[0].name }}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td class="py-3 px-6 text-left max-w-s whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="overflow-hidden truncate text-base">
+                            {{ track.track.album.name }}
+                          </div>
+                        </div>
+                      </td>
+
+                      <td class="py-3 px-6 text-center">
+                        <a
+                          :href="track.track.uri"
+                          target="_blank"
+                          class="bg-emerald-400 text-gray-900 py-2 px-4 rounded font-bold"
+                        >
+                          <i class="fab fa-spotify"></i>
+                        </a>
+                      </td>
+
+                      <td class="py-3 px-6 text-center">
+                        <a
+                          v-if="
+                            finalTracks.some(
+                              (e) =>
+                                e.spotify === track.track.external_urls.spotify
+                            )
+                          "
+                          :href="
+                            makeYouTubeURLWithID(
+                              track.track.external_urls.spotify
+                            )
+                          "
+                          target="_blank"
+                          class="bg-red-500 rounded text-white py-2 px-4 font-bold"
+                        >
+                          <i class="fab fa-youtube"></i>
+                        </a>
+
+                        <p
+                          v-else-if="
+                            hasTimedOut(track.track.external_urls.spotify)
+                          "
+                          class="text-red-300 text-lg w-30 py-1 px-3"
+                        >
+                          <i class="fas fa-circle-x mr-2" />
+                          Timed Out
+                        </p>
+                        <p
+                          v-else
+                          class="text-emerald-300 text-lg w-30 py-1 px-3"
+                        >
+                          <i class="fas fa-compact-disc fa-spin mr-2" />
+                          Scraping...
+                        </p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </section>
@@ -505,3 +617,4 @@ const reset = (): void => {
   </main>
   <TheFooter />
 </template>
+<style></style>
