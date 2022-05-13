@@ -356,7 +356,7 @@ const reset = (): void => {
                 <div
                   class="flex items-center justify-center w-14 h-14 text-gray-200 bg-red-600 rounded"
                 >
-                  <i class="fas fa-times-hexagon text-2xl"></i>
+                  <i class="fas fa-hourglass-end text-2xl"></i>
                 </div>
 
                 <div class="ml-3">
@@ -421,6 +421,7 @@ const reset = (): void => {
                 </button>
               </div>
             </div>
+            <!-- grid -->
             <section
               v-if="view == 'grid'"
               id="grid-view"
@@ -472,22 +473,22 @@ const reset = (): void => {
                         <i class="fab fa-youtube mr-2"></i> YouTube
                       </a>
 
-                      <p
+                      <a
                         v-else-if="
                           hasTimedOut(track.track.external_urls.spotify)
                         "
-                        class="bg-transparent border border-red-500 rounded text-red-300 py-2 px-4 font-bold"
+                        class="border border-red-400 rounded text-slate-300 hover:text-slate-50 py-1 px-2 font-bold bg-opacity-50 hover:bg-opacity-100 text-xs"
                       >
                         <i class="fas fa-circle-x mr-2" />
                         Timed Out
-                      </p>
-                      <p
+                      </a>
+                      <a
                         v-else
-                        class="bg-transparent text-slate-300 hover:text-slate-900 py-1 px-2 rounded font-bold mr-2 bg-opacity-50 hover:bg-opacity-100 text-xs"
+                        class="bg-transparent rounded text-slate-300 hover:text-slate-50 py-1 px-2 font-bold bg-opacity-50 hover:bg-opacity-100 text-xs"
                       >
                         <i class="fas fa-compact-disc fa-spin mr-2" />
                         Scraping...
-                      </p>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -594,7 +595,7 @@ const reset = (): void => {
                           "
                           class="text-red-300 text-lg w-30 py-1 px-3"
                         >
-                          <i class="fas fa-circle-x mr-2" />
+                          <i class="fas fa-hourglass-end mr-2" />
                           Timed Out
                         </p>
                         <p
