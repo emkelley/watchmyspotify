@@ -108,9 +108,9 @@ const scrapeResults = async (query: string) => {
   const html = await page.content();
   const finalID = parse(html);
 
-  const browser_pid = await browser.process().pid;
+  const browser_pid = browser.process().pid;
   await browser.close();
-  kill(browser_pid, "SIGKILL");
+  if (process.env.CHROME_EXE) kill(browser_pid, "SIGKILL");
 
   return finalID;
 };
