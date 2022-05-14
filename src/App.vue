@@ -11,6 +11,11 @@ import TheFooter from "./components/TheFooter.vue";
 import TrackCard from "./components/TrackCard.vue";
 import TrackTable from "./components/TrackTable.vue";
 import CounterItem from "./components/CounterItem.vue";
+import DetailsInfo from "./components/DetailsInfo.vue";
+import DetailsRestrictions from "./components/DetailsRestrictions.vue";
+import HowTo from "./components/HowTo.vue";
+import PlaylistMeta from "./components/PlaylistMeta.vue";
+import PlaylistPreview from "./components/PlaylistPreview.vue";
 
 let playlistURL = ref<string>(
   "https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1"
@@ -179,7 +184,7 @@ const reset = (): void => {
                     <i class="fa-solid fa-cog fa-spin" />
                   </span>
                   <span v-else class="mr-2">
-                    <i class="fa-solid fa-rocket" />
+                    <i class="fa-solid fa-rocket-launch" />
                   </span>
                   {{ loading ? "Processing..." : "Convert Playlist" }}
                 </button>
@@ -187,107 +192,10 @@ const reset = (): void => {
 
               <hr class="mt-4 mb-6 border-emerald-600" />
               <div class="flex flex-row">
+                <how-to />
                 <div class="text-base tracking-wide p-4 w-full">
-                  <p class="text-emerald-50 py-2">
-                    <i class="fas fa-check-circle mr-2 text-emerald-500"></i>
-                    Copy a
-                    <strong class="text-emerald-200">Public</strong> Spotify
-                    playlist link from the
-                    <a
-                      rel="noopener"
-                      target="_blank"
-                      href="https://support.spotify.com/us/article/share-from-spotify/"
-                      >Share Menu</a
-                    >.
-                  </p>
-                  <p class="text-emerald-50 py-2">
-                    <i class="fas fa-check-circle mr-2 text-emerald-500"></i>
-                    Paste the link above and click the Convert Playlist button
-                    to begin the conversion process.
-                  </p>
-                  <p class="text-emerald-50 py-2">
-                    <i class="fas fa-check-circle mr-2 text-emerald-500"></i>
-                    After a few minutes, your playlist will appear. You can open
-                    the playlist on YouTube with the button below the video.
-                  </p>
-                </div>
-                <div class="text-base tracking-wide p-4 w-full">
-                  <details>
-                    <summary
-                      class="text-emerald-400 mb-2 uppercase font-medium cursor-pointer select-none"
-                    >
-                      Restrictions:
-                    </summary>
-                    <p class="text-emerald-50 py-1">
-                      - The Spotify playlist must be public
-                    </p>
-
-                    <p class="text-emerald-50 py-1 mb-6">
-                      - Playlists are limited to 49 songs (API limits)
-                    </p>
-                  </details>
-                  <details>
-                    <summary
-                      class="text-emerald-400 mb-2 uppercase font-medium cursor-pointer select-none"
-                    >
-                      Bugs & Troubleshooting:
-                    </summary>
-
-                    <details class="pl-4">
-                      <summary
-                        class="text-emerald-200 mb-2 text-sm cursor-pointer select-none"
-                      >
-                        YouTube Embed - "This video is unavailable."
-                      </summary>
-                      <p class="text-emerald-50 py-1 pl-4 mb-2">
-                        If you see errors when the embed opens, try opening the
-                        playlist with the button below the embed.
-                      </p>
-                    </details>
-
-                    <details class="pl-4">
-                      <summary
-                        class="text-emerald-200 mb-2 text-sm cursor-pointer select-none"
-                      >
-                        Songs failed to scrape or timed out
-                      </summary>
-                      <p class="text-emerald-50 py-1 pl-4 mb-2">
-                        If songs get stuck and time out when scraping, run the
-                        conversion again on the playlist to pick up those failed
-                        songs.
-                      </p>
-                    </details>
-
-                    <details class="pl-4">
-                      <summary
-                        class="text-emerald-200 mb-2 text-sm cursor-pointer select-none"
-                      >
-                        The conversion is taking forever to complete
-                      </summary>
-                      <p class="text-emerald-50 py-1 pl-4 mb-2">
-                        Have some patience; For each song, the backend is
-                        opening a chrome instance, searching YouTube, and then
-                        extracting video IDs. This can take a while - up to 10
-                        seconds per song before timing out.
-                      </p>
-                    </details>
-
-                    <details class="pl-4">
-                      <summary
-                        class="text-emerald-200 mb-2 text-sm cursor-pointer select-none"
-                      >
-                        How was this tool built?
-                      </summary>
-                      <p class="text-emerald-50 py-1 pl-4 mb-2">
-                        Watch My Spotify was built with Vue 3 and Tailwind CSS.
-                        It uses the Spotify API to scrape the playlist and
-                        Puppeteer running in a Netlify Function to scrape video
-                        ID's from YouTube. Finally it uses an undocumented
-                        endpoint to create a playlist on YouTube without needing
-                        to be logged in.
-                      </p>
-                    </details>
-                  </details>
+                  <details-restrictions />
+                  <details-info />
                 </div>
               </div>
             </div>
@@ -298,34 +206,8 @@ const reset = (): void => {
       <section v-if="plstRaw" class="p-6">
         <div class="bg-gray-950 border border-emerald-800 shadow-2xl p-2">
           <section class="p-6 mx-auto">
-            <div
-              class="flex flex-col text-emerald-50 text-3xl pt-4 pb-8 font-bold text-center"
-            >
-              <a
-                :href="plstRaw.external_urls.spotify"
-                target="_blank"
-                rel="noopener"
-                class="text-4xl mr-6"
-              >
-                <span class="text-emerald-200">
-                  {{ plstRaw.name }}
-                </span>
-              </a>
-              <p v-if="plstRaw.description" class="text-base my-4">
-                {{ plstRaw.description }}
-              </p>
-              <a
-                :href="plstRaw.owner.external_urls.spotify"
-                target="_blank"
-                rel="noopener"
-                class="text-sm uppercase font-normal"
-              >
-                By
-                <span class="text-emerald-200">
-                  {{ plstRaw.owner.display_name }}
-                </span>
-              </a>
-            </div>
+            <!-- playlist information -->
+            <playlist-meta :plstRaw="plstRaw" />
 
             <!-- playlist counters -->
             <section
@@ -354,31 +236,14 @@ const reset = (): void => {
 
             <!-- preview -->
             <section v-if="plstRaw && embedURL.length > 0" class="w-full p-6">
-              <iframe
-                class="playlist-iframe w-full aspect-video"
-                :src="embedURL"
-                title="YouTube video player"
-                frameborder="0"
-                allowfullscreen
-                allow="autoplay"
+              <playlist-preview
+                :embed-URL="embedURL"
+                :yt-share-URL="finalYTShareURL"
               />
-              <div class="px-8 flex flex-row justify-center">
-                <a
-                  v-if="finalYTShareURL"
-                  :href="finalYTShareURL"
-                  target="_blank"
-                  rel="noopener"
-                  class="btn btn-danger my-8 font-bold rounded-none"
-                >
-                  <i class="fab fa-youtube pr-2" />
-                  Open Playlist on YouTube
-                  <i class="fas fa-link pl-2" />
-                </a>
-              </div>
             </section>
 
             <!-- playlist tracks navbar -->
-            <div class="flex flex-row items-center justify-between py-8">
+            <section class="flex flex-row items-center justify-between py-8">
               <h2 class="text-emerald-400 font-bold text-2xl">
                 Playlist Tracks:
               </h2>
@@ -398,7 +263,7 @@ const reset = (): void => {
                   <i class="fa-solid fa-table"></i>
                 </button>
               </div>
-            </div>
+            </section>
 
             <!-- grid -->
             <section
@@ -415,8 +280,9 @@ const reset = (): void => {
                 :youtube="buildYouTubeURL(track.track.external_urls.spotify)"
               />
             </section>
+
             <!-- table -->
-            <div v-if="view == 'table'" class="overflow-x-auto">
+            <section v-if="view == 'table'" class="overflow-x-auto">
               <div class="text-emerald-50 shadow-md rounded my-6">
                 <track-table
                   :tracks="plstTracks"
@@ -424,7 +290,7 @@ const reset = (): void => {
                   :failed-tracks="failedTracks"
                 />
               </div>
-            </div>
+            </section>
           </section>
         </div>
       </section>
