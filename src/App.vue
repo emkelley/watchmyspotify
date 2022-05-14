@@ -194,14 +194,13 @@ const reset = (): void => {
                   </p>
                   <p class="text-emerald-50 py-2">
                     <i class="fas fa-check-circle mr-2 text-emerald-500"></i>
-                    Paste the link into the above field and click the Convert
-                    Playlist button to begin the conversion process.
+                    Paste the link above and click the Convert Playlist button
+                    to begin the conversion process.
                   </p>
                   <p class="text-emerald-50 py-2">
                     <i class="fas fa-check-circle mr-2 text-emerald-500"></i>
-                    Once all tracks have been processed and videos have been
-                    found, the playlist will automatically appear. Use the
-                    button below the embed to view the playlist on YouTube.
+                    After a few minutes, your playlist will appear. You can open
+                    the playlist on YouTube with the button below the video.
                   </p>
                 </div>
                 <div class="text-base tracking-wide p-4 w-full">
