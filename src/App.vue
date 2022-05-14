@@ -7,14 +7,13 @@ import { checkCache, cacheResults, getTotalCached } from "@/firebase";
 import { PlaylistTrack } from "@/interfaces/PlaylistTrack";
 import { SpotifyPlaylist } from "@/interfaces/SpotifyPlaylist";
 import { TRACK_META } from "@/interfaces/TRACK_META";
+import TrackCard from "./components/TrackCard.vue";
 
 let playlistURL = ref<string>(
   "https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1"
 );
 let tracksAnalyzed = ref<number>(0);
-let embedURL = ref<string>(
-  "https://www.youtube.com/embed/videoseries?list=TLPPMjcwNDIwMjKzoSF7OkTwuw&autoplay=1"
-);
+let embedURL = ref<string>("");
 let finalYTShareURL = ref<string>("");
 let loading = ref<boolean>(false);
 let spotifyPlaylistRaw = ref<SpotifyPlaylist>();
@@ -59,11 +58,12 @@ const analyzeTracks = async (): Promise<void> => {
     };
 
     const cacheHit: TRACK_META | null = await checkCache(TRACK);
-    if (cacheHit) {
-      finalTracks.value.push(cacheHit);
-    } else {
+    if (!cacheHit) {
       const finalTrack: TRACK_META | null = await scrapeTrack(TRACK);
-      if (finalTrack) finalTracks.value.push(finalTrack);
+      if (!finalTrack) return;
+      finalTracks.value.push(finalTrack);
+    } else {
+      finalTracks.value.push(cacheHit);
     }
     // only get the final url if all tracks have videos
     if (spotifyPlaylistTracks.value.length === finalTracks.value.length) {
@@ -99,10 +99,9 @@ const getFinalURL = async (): Promise<void> => {
   axios
     .get(`/.netlify/functions/final?ids=${ytIDs}`)
     .then((data) => {
-      if (data.data.startsWith("TL")) {
-        finalYTShareURL.value = `https://www.youtube.com/playlist?list=${data.data}`;
-        embedURL.value = `https://www.youtube.com/embed/videoseries?list=${data.data}&autoplay=1`;
-      }
+      if (!data.data.startsWith("TL")) return;
+      finalYTShareURL.value = `https://www.youtube.com/playlist?list=${data.data}`;
+      embedURL.value = `https://www.youtube.com/embed/videoseries?list=${data.data}&autoplay=1`;
     })
     .catch((error) => {
       console.log(error);
@@ -112,14 +111,19 @@ const getFinalURL = async (): Promise<void> => {
     });
 };
 
-const makeYouTubeURLWithID = (spotifyURL: string): string => {
+const buildYouTubeURL = (spotifyURL: string): string => {
   const result = finalTracks.value.find((item) => item.spotify === spotifyURL);
-  return `https://www.youtube.com/watch?v=${result!.youtube}`;
+  return `https://www.youtube.com/watch?v=${result?.youtube}`;
 };
 
-const hasTimedOut = (spotifyURL: string): string | null => {
+const hasTimedOut = (spotifyURL: string): boolean => {
   const result = failedTracks.value.find((item) => item.spotify === spotifyURL);
-  return result ? "Timed out" : null;
+  return result ? true : false;
+};
+
+const wasScraped = (spotifyURL: string): boolean => {
+  const result = finalTracks.value.some((e) => e.spotify === spotifyURL);
+  return result ? true : false;
 };
 
 const reset = (): void => {
@@ -322,7 +326,12 @@ const reset = (): void => {
                 </span>
               </a>
             </div>
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+
+            <!-- playlist counters -->
+            <section
+              id="counters"
+              class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
+            >
               <div
                 class="flex-row items-center p-5 bg-gray-900 border-emerald-800 shadow-xl card"
               >
@@ -384,7 +393,7 @@ const reset = (): void => {
                   </p>
                 </div>
               </div>
-            </div>
+            </section>
 
             <!-- preview -->
             <section
@@ -413,6 +422,8 @@ const reset = (): void => {
                 </a>
               </div>
             </section>
+
+            <!-- playlist tracks navbar -->
             <div class="flex flex-row items-center justify-between py-8">
               <h2 class="text-emerald-400 font-bold text-2xl">
                 Playlist Tracks:
@@ -434,104 +445,21 @@ const reset = (): void => {
                 </button>
               </div>
             </div>
+
             <!-- grid -->
             <section
               v-if="view == 'grid'"
               id="grid-view"
               class="flex flex-row flex-wrap"
             >
-              <article
+              <track-card
                 v-for="(track, index) in spotifyPlaylistTracks"
-                :key="index"
-                class="2xl:w-1/5 xl:w-1/4 lg:w-1/3 md:1/2 w-full p-2 py-4 flex flex-row blur-50"
-              >
-                <div
-                  class="aspect-square w-full h-full rounded-md flex flex-col justify-between bg-cover overflow-hidden"
-                  :style="{
-                  backgroundImage:
-                    'url(' + track.track.album.images![0].url + ')',
-                }"
-                >
-                  <div class="flex flex-row items-end">
-                    <div
-                      class="h-10 w-10 bg-slate-900/70 backdrop-blur-md rounded-br-lg shadow-md flex items-center justify-center"
-                    >
-                      <div>
-                        <span
-                          v-if="
-                            finalTracks.some(
-                              (e) =>
-                                e.spotify === track.track.external_urls.spotify
-                            )
-                          "
-                          class="text-emerald-400"
-                        >
-                          <i class="fas fa-circle-check" />
-                        </span>
-                        <span
-                          v-else-if="
-                            hasTimedOut(track.track.external_urls.spotify)
-                          "
-                          class="text-red-400"
-                        >
-                          <i class="fas fa-circle-x" />
-                        </span>
-                        <span v-else class="text-slate-100">
-                          <i class="fas fa-compact-disc fa-spin" />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    class="p-4 bg-slate-900/70 backdrop-blur-md border-slate-600 shadow-lg text-white w-full flex flex-col rounded-b-md -mb-10 hover:mb-0 transition-all ease-in-out delay-100"
-                  >
-                    <p class="mb-1 font-bold truncate">
-                      {{ track.track.name }}
-                    </p>
-                    <p class="mb-2 font-light truncate">
-                      {{ track.track.artists![0].name }}
-                    </p>
-                    <div>
-                      <a
-                        :href="track.track.uri"
-                        target="_blank"
-                        class="bg-emerald-400 text-slate-300 hover:text-slate-900 py-1 px-2 rounded font-bold mr-2 bg-opacity-50 hover:bg-opacity-100 text-xs"
-                      >
-                        <i class="fab fa-spotify pr-2"></i>
-                        Spotify
-                      </a>
-                      <a
-                        v-if="
-                          finalTracks.some(
-                            (e) =>
-                              e.spotify === track.track.external_urls.spotify
-                          )
-                        "
-                        :href="
-                          makeYouTubeURLWithID(
-                            track.track.external_urls.spotify
-                          )
-                        "
-                        target="_blank"
-                        class="bg-red-500 rounded text-slate-300 hover:text-slate-50 py-1 px-2 font-bold bg-opacity-50 hover:bg-opacity-100 text-xs"
-                      >
-                        <i class="fab fa-youtube mr-2"></i> YouTube
-                      </a>
-
-                      <a
-                        v-else-if="
-                          hasTimedOut(track.track.external_urls.spotify)
-                        "
-                        class="border border-red-400 rounded text-slate-300 py-1 px-2 font-bold bg-opacity-50 text-xs select-none"
-                      >
-                        <i class="fas fa-circle-x mr-2" />
-                        Timed Out
-                      </a>
-                    </div>
-                  </div>
-                </div>
-                <div></div>
-              </article>
+                v-bind:key="index"
+                :track="track"
+                :timed-out="hasTimedOut(track.track.external_urls.spotify)"
+                :success="wasScraped(track.track.external_urls.spotify)"
+                :youtube="buildYouTubeURL(track.track.external_urls.spotify)"
+              />
             </section>
             <!-- table -->
             <div v-if="view == 'table'" class="overflow-x-auto">
@@ -617,9 +545,7 @@ const reset = (): void => {
                             )
                           "
                           :href="
-                            makeYouTubeURLWithID(
-                              track.track.external_urls.spotify
-                            )
+                            buildYouTubeURL(track.track.external_urls.spotify)
                           "
                           target="_blank"
                           class="bg-red-500 rounded text-white py-2 px-4 font-bold"
