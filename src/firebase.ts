@@ -1,5 +1,6 @@
 import { TRACK_META } from "@/interfaces/TRACK_META";
 import { initializeApp } from "firebase/app";
+import { doc, updateDoc, getDoc, increment } from "firebase/firestore";
 
 import {
   getFirestore,
@@ -46,21 +47,21 @@ export const cacheResults = async (TRACK_META: TRACK_META): Promise<string> => {
     spotify: TRACK_META.spotify,
     youtube: TRACK_META.youtube,
   });
+  await incrementCacheCounter();
   return docRef.id;
 };
-// export const cacheResults = async (TRACK_META: TRACK_META): Promise<string> => {
-//   try {
-//     const docRef = await addDoc(cacheRef, {
-//       added: Date.now(),
-//       name: TRACK_META.name,
-//       artist: TRACK_META.artist,
-//       album: TRACK_META.album,
-//       image: TRACK_META.image,
-//       spotify: TRACK_META.spotify,
-//       youtube: TRACK_META.youtube,
-//     });
-//     return docRef.id;
-//   } catch (error) {
-//     return error as string;
-//   }
-// };
+
+const incrementCacheCounter = async () => {
+  const cacheCounterRef = doc(db, "meta", "stats");
+  await updateDoc(cacheCounterRef, {
+    tracks: increment(1),
+  });
+};
+export const getTotalCached = async () => {
+  const docRef = doc(db, "meta", "stats");
+  const docSnap = await getDoc(docRef);
+  const tracks = docSnap.data()?.tracks;
+  console.log(tracks);
+
+  return tracks;
+};

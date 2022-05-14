@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /* eslint-disable  @typescript-eslint/no-non-null-assertion */
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import TheFooter from "./components/TheFooter.vue";
-import { checkCache, cacheResults } from "@/firebase";
+import { checkCache, cacheResults, getTotalCached } from "@/firebase";
 import { PlaylistTrack } from "@/interfaces/PlaylistTrack";
 import { SpotifyPlaylist } from "@/interfaces/SpotifyPlaylist";
 import { TRACK_META } from "@/interfaces/TRACK_META";
@@ -22,6 +22,12 @@ let spotifyPlaylistTracks = ref<PlaylistTrack[]>([]);
 let finalTracks = ref<TRACK_META[]>([]);
 let failedTracks = ref<TRACK_META[]>([]);
 let view = ref<string>("grid");
+let totalCached = ref<string | undefined>(undefined);
+
+onMounted(async () => {
+  const cached = await getTotalCached();
+  totalCached.value = new Intl.NumberFormat("en-US").format(cached);
+});
 
 const getPlaylistTracks = async (): Promise<void> => {
   reset();
@@ -68,7 +74,9 @@ const analyzeTracks = async (): Promise<void> => {
 
 const scrapeTrack = async (TRACK: TRACK_META): Promise<TRACK_META | null> => {
   const endpoint = "/.netlify/functions/scrape?query=";
-  const query = `${TRACK.artist} - ${TRACK.name}`.replace(" ", "+");
+  const query = `${TRACK.artist} - ${TRACK.name}`
+    .replace("&", "+")
+    .replace(" ", "+");
   return axios
     .get(`${endpoint}${query}`)
     .then((res) => {
@@ -131,6 +139,8 @@ const reset = (): void => {
       <h1 class="text-4xl text-emerald-50 font-bold">Watch My Spotify</h1>
       <p class="text-emerald-50 max-w-2xl mx-auto mt-5">
         Use this tool to convert a Spotify playlist to a YouTube playlist.
+        <br />To date, this tool has found and cached videos for
+        <span v-if="totalCached">{{ totalCached || "--" }} </span> songs.
       </p>
     </section>
     <div class="container mx-auto px-4">
@@ -197,7 +207,7 @@ const reset = (): void => {
                 <div class="text-base tracking-wide p-4 w-full">
                   <details>
                     <summary
-                      class="text-emerald-400 mb-2 uppercase font-medium cursor-pointer"
+                      class="text-emerald-400 mb-2 uppercase font-medium cursor-pointer select-none"
                     >
                       Restrictions:
                     </summary>
@@ -211,30 +221,30 @@ const reset = (): void => {
                   </details>
                   <details>
                     <summary
-                      class="text-emerald-400 mb-2 uppercase font-medium cursor-pointer"
+                      class="text-emerald-400 mb-2 uppercase font-medium cursor-pointer select-none"
                     >
                       Bugs & Troubleshooting:
                     </summary>
 
                     <details class="pl-4">
                       <summary
-                        class="text-emerald-200 mb-2 text-sm cursor-pointer"
+                        class="text-emerald-200 mb-2 text-sm cursor-pointer select-none"
                       >
                         YouTube Embed - "This video is unavailable."
                       </summary>
-                      <p class="text-emerald-50 py-1 pl-4">
-                        errors when the embed opens, try opening the playlist
-                        with the button below the embed.
+                      <p class="text-emerald-50 py-1 pl-4 mb-2">
+                        If you see errors when the embed opens, try opening the
+                        playlist with the button below the embed.
                       </p>
                     </details>
 
                     <details class="pl-4">
                       <summary
-                        class="text-emerald-200 mb-2 text-sm cursor-pointer"
+                        class="text-emerald-200 mb-2 text-sm cursor-pointer select-none"
                       >
                         Songs failed to scrape or timed out
                       </summary>
-                      <p class="text-emerald-50 py-1 pl-4">
+                      <p class="text-emerald-50 py-1 pl-4 mb-2">
                         If songs get stuck and time out when scraping, run the
                         conversion again on the playlist to pick up those failed
                         songs.
@@ -243,11 +253,11 @@ const reset = (): void => {
 
                     <details class="pl-4">
                       <summary
-                        class="text-emerald-200 mb-2 text-sm cursor-pointer"
+                        class="text-emerald-200 mb-2 text-sm cursor-pointer select-none"
                       >
                         The conversion is taking forever to complete
                       </summary>
-                      <p class="text-emerald-50 py-1 pl-4">
+                      <p class="text-emerald-50 py-1 pl-4 mb-2">
                         Have some patience; For each song, the backend is
                         opening a chrome instance, searching YouTube, and then
                         extracting video IDs. This can take a while - up to 10
@@ -257,17 +267,17 @@ const reset = (): void => {
 
                     <details class="pl-4">
                       <summary
-                        class="text-emerald-200 mb-2 text-sm cursor-pointer"
+                        class="text-emerald-200 mb-2 text-sm cursor-pointer select-none"
                       >
                         How was this tool built?
                       </summary>
-                      <p class="text-emerald-50 py-1 pl-4">
-                        If you're interested in the technical side of this
-                        project, you can read more about how I made it
-                        <a class="text-emerald-200" href="#"
-                          >in this blog post</a
-                        >
-                        (coming soon).
+                      <p class="text-emerald-50 py-1 pl-4 mb-2">
+                        Watch My Spotify was built with Vue 3 and Tailwind CSS.
+                        It uses the Spotify API to scrape the playlist and
+                        Puppeteer running in a Netlify Function to scrape video
+                        ID's from YouTube. Finally it uses an undocumented
+                        endpoint to create a playlist on YouTube without needing
+                        to be logged in.
                       </p>
                     </details>
                   </details>
@@ -430,7 +440,7 @@ const reset = (): void => {
               <article
                 v-for="(track, index) in spotifyPlaylistTracks"
                 :key="index"
-                class="2xl:w-1/5 xl:w-1/3 lg:w-1/2 w-full p-2 py-4 flex flex-row blur-50"
+                class="2xl:w-1/5 xl:w-1/4 lg:w-1/3 md:1/2 w-full p-2 py-4 flex flex-row blur-50"
               >
                 <div
                   class="aspect-square w-full h-full rounded-md flex items-end bg-cover"
