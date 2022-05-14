@@ -12,6 +12,7 @@ const handler: Handler = async (event) => {
   };
 };
 
+// Chrome is the spawn of satan a just won't die when running locally. To fix that, the first step is an absolutely offensive amount of launch arguments:
 const nuclear_args = [
   "--disable-2d-canvas-clip-aa",
   "--disable-2d-canvas-image-chromium",
@@ -86,7 +87,7 @@ const nuclear_args = [
 
 const scrapeResults = async (query: string) => {
   const ytQueryBase = "https://www.youtube.com/results?search_query=";
-  const fullQuery = `${ytQueryBase}${query.replace(" ", "+")} official video`;
+  const fullQuery = `${ytQueryBase}${query} official video`;
 
   const browser = await chromium.puppeteer.launch({
     args: [...chromium.args, ...nuclear_args],
@@ -97,6 +98,7 @@ const scrapeResults = async (query: string) => {
   const page = await browser.newPage();
   await page.goto(fullQuery);
   await page.setRequestInterception(true);
+
   // If the page makes a  request to a resource type of image or stylesheet then abort that request
   page.on("request", (req) => {
     if (req.resourceType() === "image" || req.resourceType() === "stylesheet") {
@@ -105,19 +107,25 @@ const scrapeResults = async (query: string) => {
       req.continue();
     }
   });
+
   const html = await page.content();
   const finalID = parse(html);
 
   const browser_pid = browser.process().pid;
   await browser.close();
+
+  // Forcefully kill the browser process in dev environments.
+  // Be sure to update the process.env.CHROME_EXE with your own personal Chrome exe path if     different.
   if (process.env.CHROME_EXE) kill(browser_pid, "SIGKILL");
 
   return finalID;
 };
 
+// Dive into the absolute rat's nest that is the YouTube DOM to get the video IDs on the page
 const parse = (html) => {
   const $ = cheerio.load(html);
   const results = [];
+
   $("#contents ytd-video-renderer,#contents ytd-grid-video-renderer")
     .slice(0, 1)
     .each((i, link) => {

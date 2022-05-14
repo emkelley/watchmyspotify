@@ -39,14 +39,18 @@ onMounted(async (): Promise<void> => {
 const getPlaylistTracks = async (): Promise<void> => {
   reset();
   loading.value = true;
+
   const { data } = await axios.get("/.netlify/functions/playlist", {
     params: {
       plst: playlistURL.value.split("/")[4],
     },
   });
+
   const playlistItems = data.tracks.items.slice(0, 49);
+
   plstRaw.value = data as SpotifyPlaylist;
   plstTracks.value = playlistItems as PlaylistTrack[];
+
   analyzeTracks();
 };
 
