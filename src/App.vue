@@ -1,33 +1,34 @@
 <script setup lang="ts">
 /* eslint-disable  @typescript-eslint/no-non-null-assertion */
-
 import axios from "axios";
 import { ref, onMounted } from "vue";
 import { checkCache, cacheResults, getTotalCached } from "@/firebase";
+
 import { PlaylistTrack } from "@/interfaces/PlaylistTrack";
 import { SpotifyPlaylist } from "@/interfaces/SpotifyPlaylist";
 import { TRACK_META } from "@/interfaces/TRACK_META";
+
+import HowTo from "./components/HowTo.vue";
 import TheFooter from "./components/TheFooter.vue";
 import TrackCard from "./components/TrackCard.vue";
 import TrackTable from "./components/TrackTable.vue";
 import CounterItem from "./components/CounterItem.vue";
 import DetailsInfo from "./components/DetailsInfo.vue";
-import DetailsRestrictions from "./components/DetailsRestrictions.vue";
-import HowTo from "./components/HowTo.vue";
 import PlaylistMeta from "./components/PlaylistMeta.vue";
 import PlaylistPreview from "./components/PlaylistPreview.vue";
+import DetailsRestrictions from "./components/DetailsRestrictions.vue";
 
 let playlistURL = ref<string>(
   "https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1"
 );
 let view = ref<string>("grid");
 let embedURL = ref<string>("");
-let finalYTShareURL = ref<string>("");
 let loading = ref<boolean>(false);
 let plstRaw = ref<SpotifyPlaylist>();
-let plstTracks = ref<PlaylistTrack[]>([]);
+let finalYTShareURL = ref<string>("");
 let finalTracks = ref<TRACK_META[]>([]);
 let failedTracks = ref<TRACK_META[]>([]);
+let plstTracks = ref<PlaylistTrack[]>([]);
 let totalCached = ref<string | undefined>(undefined);
 
 onMounted(async (): Promise<void> => {
