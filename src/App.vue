@@ -1,29 +1,31 @@
 <script setup lang="ts">
 /* eslint-disable  @typescript-eslint/no-non-null-assertion */
-import { ref, onMounted } from "vue";
+
 import axios from "axios";
-import TheFooter from "./components/TheFooter.vue";
+import { ref, onMounted } from "vue";
 import { checkCache, cacheResults, getTotalCached } from "@/firebase";
 import { PlaylistTrack } from "@/interfaces/PlaylistTrack";
 import { SpotifyPlaylist } from "@/interfaces/SpotifyPlaylist";
 import { TRACK_META } from "@/interfaces/TRACK_META";
+import TheFooter from "./components/TheFooter.vue";
 import TrackCard from "./components/TrackCard.vue";
+import TrackTable from "./components/TrackTable.vue";
+import CounterItem from "./components/CounterItem.vue";
 
 let playlistURL = ref<string>(
   "https://open.spotify.com/playlist/4uMPojsQJn0d0coC9bp9V1"
 );
-let tracksAnalyzed = ref<number>(0);
+let view = ref<string>("grid");
 let embedURL = ref<string>("");
 let finalYTShareURL = ref<string>("");
 let loading = ref<boolean>(false);
-let spotifyPlaylistRaw = ref<SpotifyPlaylist>();
-let spotifyPlaylistTracks = ref<PlaylistTrack[]>([]);
+let plstRaw = ref<SpotifyPlaylist>();
+let plstTracks = ref<PlaylistTrack[]>([]);
 let finalTracks = ref<TRACK_META[]>([]);
 let failedTracks = ref<TRACK_META[]>([]);
-let view = ref<string>("grid");
 let totalCached = ref<string | undefined>(undefined);
 
-onMounted(async () => {
+onMounted(async (): Promise<void> => {
   const cached = await getTotalCached();
   totalCached.value = new Intl.NumberFormat("en-US").format(cached);
 });
@@ -31,22 +33,20 @@ onMounted(async () => {
 const getPlaylistTracks = async (): Promise<void> => {
   reset();
   loading.value = true;
-  const data = await axios.get("/.netlify/functions/playlist", {
+  const { data } = await axios.get("/.netlify/functions/playlist", {
     params: {
       plst: playlistURL.value.split("/")[4],
     },
   });
-  const raw = data.data;
-  const playlistItems = data.data.tracks.items.slice(0, 49);
-  spotifyPlaylistRaw.value = raw as SpotifyPlaylist;
-  spotifyPlaylistTracks.value = playlistItems as PlaylistTrack[];
+  const playlistItems = data.tracks.items.slice(0, 49);
+  plstRaw.value = data as SpotifyPlaylist;
+  plstTracks.value = playlistItems as PlaylistTrack[];
   analyzeTracks();
 };
 
 // check if the playlist tracks have been cached before, if not scrape the video ID and cache it, and add track to finalTracks
 const analyzeTracks = async (): Promise<void> => {
-  for (const item of spotifyPlaylistTracks.value) {
-    tracksAnalyzed.value++;
+  for (const item of plstTracks.value) {
     let TRACK: TRACK_META = {
       name: item.track.name,
       artist: item.track.artists![0].name,
@@ -66,7 +66,7 @@ const analyzeTracks = async (): Promise<void> => {
       finalTracks.value.push(cacheHit);
     }
     // only get the final url if all tracks have videos
-    if (spotifyPlaylistTracks.value.length === finalTracks.value.length) {
+    if (plstTracks.value.length === finalTracks.value.length) {
       getFinalURL();
     }
   }
@@ -101,7 +101,8 @@ const getFinalURL = async (): Promise<void> => {
     .then((data) => {
       if (!data.data.startsWith("TL")) return;
       finalYTShareURL.value = `https://www.youtube.com/playlist?list=${data.data}`;
-      embedURL.value = `https://www.youtube.com/embed/videoseries?list=${data.data}&autoplay=1`;
+      embedURL.value = `https://www.youtube.com/embed/videoseries?list=${data.data}`;
+      // embedURL.value = `https://www.youtube.com/embed/videoseries?list=${data.data}&autoplay=1`;
     })
     .catch((error) => {
       console.log(error);
@@ -127,10 +128,9 @@ const wasScraped = (spotifyURL: string): boolean => {
 };
 
 const reset = (): void => {
-  spotifyPlaylistTracks.value.length = 0;
+  plstTracks.value.length = 0;
   finalTracks.value.length = 0;
   failedTracks.value.length = 0;
-  tracksAnalyzed.value = 0;
   embedURL.value = "";
 };
 </script>
@@ -295,34 +295,34 @@ const reset = (): void => {
         </div>
       </div>
 
-      <section v-if="spotifyPlaylistRaw" class="p-6">
+      <section v-if="plstRaw" class="p-6">
         <div class="bg-gray-950 border border-emerald-800 shadow-2xl p-2">
           <section class="p-6 mx-auto">
             <div
               class="flex flex-col text-emerald-50 text-3xl pt-4 pb-8 font-bold text-center"
             >
               <a
-                :href="spotifyPlaylistRaw.external_urls.spotify"
+                :href="plstRaw.external_urls.spotify"
                 target="_blank"
                 rel="noopener"
                 class="text-4xl mr-6"
               >
                 <span class="text-emerald-200">
-                  {{ spotifyPlaylistRaw.name }}
+                  {{ plstRaw.name }}
                 </span>
               </a>
-              <p v-if="spotifyPlaylistRaw.description" class="text-base my-4">
-                {{ spotifyPlaylistRaw.description }}
+              <p v-if="plstRaw.description" class="text-base my-4">
+                {{ plstRaw.description }}
               </p>
               <a
-                :href="spotifyPlaylistRaw.owner.external_urls.spotify"
+                :href="plstRaw.owner.external_urls.spotify"
                 target="_blank"
                 rel="noopener"
                 class="text-sm uppercase font-normal"
               >
                 By
                 <span class="text-emerald-200">
-                  {{ spotifyPlaylistRaw.owner.display_name }}
+                  {{ plstRaw.owner.display_name }}
                 </span>
               </a>
             </div>
@@ -332,74 +332,28 @@ const reset = (): void => {
               id="counters"
               class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3"
             >
-              <div
-                class="flex-row items-center p-5 bg-gray-900 border-emerald-800 shadow-xl card"
-              >
-                <div
-                  class="flex items-center justify-center w-14 h-14 text-emerald-50 bg-blue-600 rounded"
-                >
-                  <i class="fas fa-music text-2xl"></i>
-                </div>
-
-                <div class="ml-3">
-                  <h2
-                    class="mb-2 text-3xl font-bold leading-none text-emerald-50 truncate"
-                  >
-                    {{ spotifyPlaylistTracks.length }}
-                  </h2>
-
-                  <p class="leading-none text-gray-300">Playlist Tracks</p>
-                </div>
-              </div>
-
-              <div
-                class="flex-row items-center p-5 card bg-gray-900 border-emerald-800 shadow-xl"
-              >
-                <div
-                  class="flex items-center justify-center w-14 h-14 text-gray-200 bg-emerald-600 rounded"
-                >
-                  <i class="fas fa-tv-music text-2xl"></i>
-                </div>
-
-                <div class="ml-3">
-                  <h2
-                    class="mb-1 text-3xl font-bold leading-none text-emerald-50 truncate"
-                  >
-                    {{ finalTracks.length }}
-                  </h2>
-
-                  <p class="leading-none text-gray-300">Videos Found</p>
-                </div>
-              </div>
-
-              <div
-                class="flex-row items-center p-5 card bg-gray-900 border-emerald-800 shadow-xl"
-              >
-                <div
-                  class="flex items-center justify-center w-14 h-14 text-gray-200 bg-red-600 rounded"
-                >
-                  <i class="fas fa-hourglass-end text-2xl"></i>
-                </div>
-
-                <div class="ml-3">
-                  <h2
-                    class="mb-1 font-bold leading-none text-emerald-50 truncate text-3xl"
-                  >
-                    {{ failedTracks.length }}
-                  </h2>
-
-                  <p class="leading-none text-gray-300">
-                    Failed to scrape (timeout)
-                  </p>
-                </div>
-              </div>
+              <counter-item
+                :number="plstTracks.length"
+                title="Playlist Tracks"
+                icon="fa-music"
+                color="bg-blue-600"
+              />
+              <counter-item
+                :number="finalTracks.length"
+                title="Videos Found"
+                icon="fa-tv-music"
+                color="bg-green-600"
+              />
+              <counter-item
+                :number="failedTracks.length"
+                title="Failed to scrape (timeout)"
+                icon="fa-hourglass-end"
+                color="bg-red-600"
+              />
             </section>
 
             <!-- preview -->
-            <section
-              v-if="spotifyPlaylistRaw && embedURL.length > 0"
-              class="w-full p-6"
-            >
+            <section v-if="plstRaw && embedURL.length > 0" class="w-full p-6">
               <iframe
                 class="playlist-iframe w-full aspect-video"
                 :src="embedURL"
@@ -453,8 +407,8 @@ const reset = (): void => {
               class="flex flex-row flex-wrap"
             >
               <track-card
-                v-for="(track, index) in spotifyPlaylistTracks"
-                v-bind:key="index"
+                v-for="(track, index) in plstTracks"
+                :key="index"
                 :track="track"
                 :timed-out="hasTimedOut(track.track.external_urls.spotify)"
                 :success="wasScraped(track.track.external_urls.spotify)"
@@ -464,115 +418,11 @@ const reset = (): void => {
             <!-- table -->
             <div v-if="view == 'table'" class="overflow-x-auto">
               <div class="text-emerald-50 shadow-md rounded my-6">
-                <table class="w-full table-auto shadow-xl bg-gray-700 rounded">
-                  <thead class="rounded-t">
-                    <tr
-                      class="bg-gray-900 text-emerald-50 uppercase text-sm leading-normal select-none"
-                    >
-                      <th class="py-3 px-6 text-left">Cover</th>
-
-                      <th class="py-3 px-6 text-left">Track Name</th>
-
-                      <th class="py-3 px-6 text-left">Artist</th>
-
-                      <th class="py-3 px-6 text-left">Album</th>
-
-                      <th class="py-3 px-6 text-center">Spotify</th>
-
-                      <th class="py-3 px-6 text-center">YouTube</th>
-                    </tr>
-                  </thead>
-
-                  <tbody class="text-emerald-50 text-sm font-light">
-                    <tr
-                      v-for="(track, index) in spotifyPlaylistTracks"
-                      :key="index"
-                      class="border border-gray-950 hover:bg-gray-800"
-                    >
-                      <td class="py-3 px-6 text-left whitespace-nowrap">
-                        <div class="flex items-center">
-                          <img
-                            v-if="track.track.album.images"
-                            class="rounded shadow-md select-none w-14"
-                            :src="track.track.album.images[0].url"
-                          />
-                        </div>
-                      </td>
-
-                      <td class="py-3 px-6 text-left whitespace-nowrap">
-                        <div class="flex items-center">
-                          <span class="overflow-hidden truncate text-base">
-                            {{ track.track.name }}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td class="py-3 px-6 text-left">
-                        <div class="flex items-center">
-                          <span
-                            v-if="track.track.artists"
-                            class="overflow-hidden truncate text-base"
-                          >
-                            {{ track.track.artists[0].name }}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td class="py-3 px-6 text-left max-w-s whitespace-nowrap">
-                        <div class="flex items-center">
-                          <div class="overflow-hidden truncate text-base">
-                            {{ track.track.album.name }}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td class="py-3 px-6 text-center">
-                        <a
-                          :href="track.track.uri"
-                          target="_blank"
-                          class="bg-emerald-400 text-gray-900 py-2 px-4 rounded font-bold"
-                        >
-                          <i class="fab fa-spotify"></i>
-                        </a>
-                      </td>
-
-                      <td class="py-3 px-6 text-center">
-                        <a
-                          v-if="
-                            finalTracks.some(
-                              (e) =>
-                                e.spotify === track.track.external_urls.spotify
-                            )
-                          "
-                          :href="
-                            buildYouTubeURL(track.track.external_urls.spotify)
-                          "
-                          target="_blank"
-                          class="bg-red-500 rounded text-white py-2 px-4 font-bold"
-                        >
-                          <i class="fab fa-youtube"></i>
-                        </a>
-
-                        <p
-                          v-else-if="
-                            hasTimedOut(track.track.external_urls.spotify)
-                          "
-                          class="text-red-300 text-lg w-30 py-1 px-3"
-                        >
-                          <i class="fas fa-hourglass-end mr-2" />
-                          Timed Out
-                        </p>
-                        <p
-                          v-else
-                          class="text-emerald-300 text-lg w-30 py-1 px-3"
-                        >
-                          <i class="fas fa-compact-disc fa-spin mr-2" />
-                          Scraping...
-                        </p>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <track-table
+                  :tracks="plstTracks"
+                  :final-tracks="finalTracks"
+                  :failed-tracks="failedTracks"
+                />
               </div>
             </div>
           </section>
