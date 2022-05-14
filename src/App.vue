@@ -134,13 +134,17 @@ const reset = (): void => {
 <template>
   <main class="app bg-gray-900 min-h-screen pb-24">
     <section
-      class="px-4 py-24 border-b border-emerald-800 bg-gradient-to-br from-emerald-900 to-gray-950 text-center"
+      class="px-4 py-16 border-b border-emerald-800 bg-gradient-to-br from-emerald-900 to-gray-950 text-center"
     >
       <h1 class="text-4xl text-emerald-50 font-bold">Watch My Spotify</h1>
       <p class="text-emerald-50 max-w-2xl mx-auto mt-5">
         Use this tool to convert a Spotify playlist to a YouTube playlist.
         <br />To date, this tool has found and cached videos for
         <span v-if="totalCached">{{ totalCached || "--" }} </span> songs.
+      </p>
+      <p class="text-emerald-50 max-w-2xl mx-auto mt-5 text-xs">
+        Made with 💚 and ☕ by
+        <a href="https://emk.dev" target="_blank">Eric Kelley</a>
       </p>
     </section>
     <div class="container mx-auto px-4">
