@@ -1,16 +1,34 @@
 <script setup lang="ts">
+import VanillaTilt from "vanilla-tilt";
+import { onMounted } from "vue";
 import { PlaylistTrack } from "@/interfaces/PlaylistTrack";
+import { nanoid } from "nanoid";
+
 const props = defineProps<{
   track: PlaylistTrack;
   timedOut: boolean;
   youtube: string;
   success: boolean;
 }>();
+
+const rand = nanoid();
+
+onMounted(() => {
+  const el = document.getElementById(rand);
+  if (!el) return;
+  VanillaTilt.init(el, {
+    max: 10,
+    speed: 400,
+    glare: false,
+    "max-glare": 0.1,
+  });
+});
 </script>
 
 <template>
   <article class="card-wrapper">
     <div
+      :id="rand"
       class="card-content"
       :style="{
         backgroundImage: 'url(' + track.track.album.images![0].url + ')',

@@ -12,7 +12,7 @@ const handler: Handler = async (event) => {
   };
 };
 
-// Chrome is the spawn of satan a just won't die when running locally. To fix that, the first step is an absolutely offensive amount of launch arguments:
+// Chrome is the spawn of satan and just won't die when running locally. To fix that, the first step is an absolutely offensive amount of launch arguments:
 const nuclear_args = [
   "--disable-2d-canvas-clip-aa",
   "--disable-2d-canvas-image-chromium",
