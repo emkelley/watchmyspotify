@@ -17,7 +17,7 @@ onMounted(() => {
   const el = document.getElementById(rand);
   if (!el) return;
   VanillaTilt.init(el, {
-    max: 10,
+    max: 8,
     speed: 400,
     glare: false,
     "max-glare": 0.1,
