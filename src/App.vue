@@ -23,7 +23,7 @@ let playlistURL = ref<string>(
 );
 let view = ref<string>("grid");
 let embedURL = ref<string>("");
-let tracksAnalysed = ref<number>(0);
+let tracksAnalyzed = ref<number>(0);
 let loading = ref<boolean>(false);
 let plstRaw = ref<SpotifyPlaylist>();
 let finalYTShareURL = ref<string>("");
@@ -57,7 +57,7 @@ const getPlaylistTracks = async (): Promise<void> => {
 // check if the playlist tracks have been cached before, if not scrape the video ID and cache it, and add track to finalTracks
 const analyzeTracks = async (): Promise<void> => {
   for (const item of plstTracks.value) {
-    tracksAnalysed.value++;
+    tracksAnalyzed.value++;
     let TRACK: TRACK_META = {
       name: item.track.name,
       artist: item.track.artists![0].name,
@@ -77,7 +77,7 @@ const analyzeTracks = async (): Promise<void> => {
       finalTracks.value.push(cacheHit);
     }
     // if we've processed all tracks
-    if (plstTracks.value.length === tracksAnalysed.value) {
+    if (plstTracks.value.length === tracksAnalyzed.value) {
       getFinalURL();
     }
     // only get the final url if all tracks have videos
